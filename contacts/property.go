@@ -1,4 +1,4 @@
-package emails
+package contacts
 
 const (
 	toPty      = "TO"
