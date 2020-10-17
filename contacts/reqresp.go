@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"gitlab.com/digitalhouse-dev/libraries-go/util.git/response"
+	"github.com/ncostamagna/response"
 )
 
 type (

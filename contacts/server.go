@@ -17,26 +17,33 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
-	r.Handle("/emails/", httptransport.NewServer(
+	r.Handle("/contacts/", httptransport.NewServer(
+		endpoints.Create,
+		decodeGetReq,
+		encodeResponse,
+		opts...,
+	)).Methods("POST")
+
+	r.Handle("/contacts/", httptransport.NewServer(
+		endpoints.Update,
+		decodeGetReq,
+		encodeResponse,
+		opts...,
+	)).Methods("PUT")
+
+	r.Handle("/contacts/", httptransport.NewServer(
 		endpoints.GetAll,
 		decodeGetReq,
 		encodeResponse,
 		opts...,
 	)).Methods("GET")
 
-	r.Handle("/emails/send", httptransport.NewServer(
-		endpoints.Send,
-		decodeEmailReq,
+	r.Handle("/contacts/{id}", httptransport.NewServer(
+		endpoints.Get,
+		decodeGetReq,
 		encodeResponse,
 		opts...,
-	)).Methods("POST")
-
-	r.Handle("/emails/{id}/resend", httptransport.NewServer(
-		endpoints.Resend,
-		decodeResendReq,
-		encodeResponse,
-		opts...,
-	)).Methods("POST")
+	)).Methods("GET")
 
 	return r
 
