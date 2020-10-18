@@ -19,31 +19,38 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 
 	r.Handle("/contacts/", httptransport.NewServer(
 		endpoints.Create,
-		decodeGetReq,
+		decodeCreateContact,
 		encodeResponse,
 		opts...,
 	)).Methods("POST")
 
 	r.Handle("/contacts/", httptransport.NewServer(
-		endpoints.Update,
-		decodeGetReq,
-		encodeResponse,
-		opts...,
-	)).Methods("PUT")
-
-	r.Handle("/contacts/", httptransport.NewServer(
 		endpoints.GetAll,
-		decodeGetReq,
+		decodeGetContact,
 		encodeResponse,
 		opts...,
 	)).Methods("GET")
 
 	r.Handle("/contacts/{id}", httptransport.NewServer(
 		endpoints.Get,
-		decodeGetReq,
+		nil,
 		encodeResponse,
 		opts...,
 	)).Methods("GET")
+
+	r.Handle("/contacts/{id}", httptransport.NewServer(
+		endpoints.Update,
+		nil,
+		encodeResponse,
+		opts...,
+	)).Methods("PUT")
+
+	r.Handle("/contacts/{id}", httptransport.NewServer(
+		nil,
+		decodeCreateContact,
+		encodeResponse,
+		opts...,
+	)).Methods("DELETE")
 
 	return r
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/ncostamagna/rerrors"
+
 	"github.com/go-kit/kit/log"
 )
 
@@ -23,28 +25,43 @@ func NewService(repo Repository, logger log.Logger) Service {
 }
 
 //Create service
-func (s service) Create(ctx context.Context) (string, error) {
+func (s service) Create(ctx context.Context, contact *Contact) rerrors.RestErr {
 
-	return "Success", nil
+	err := s.repo.Create(ctx, contact)
+
+	if err != nil {
+		return rerrors.NewInternalServerError(err)
+	}
+
+	return nil
 }
 
-func (s service) Update(ctx context.Context) (*Contact, error) {
+func (s service) Update(ctx context.Context) (*Contact, rerrors.RestErr) {
 
 	contact := Contact{}
 
 	return &contact, nil
 }
 
-func (s service) Get(ctx context.Context) (Contact, error) {
+func (s service) Delete(ctx context.Context) (*Contact, rerrors.RestErr) {
+
+	contact := Contact{}
+
+	return &contact, nil
+}
+
+func (s service) Get(ctx context.Context) (Contact, rerrors.RestErr) {
 
 	contact := Contact{}
 
 	return contact, nil
 }
 
-func (s service) GetAll(ctx context.Context) ([]Contact, error) {
+func (s service) GetAll(ctx context.Context, contacts *[]Contact) rerrors.RestErr {
 
-	contact := []Contact{}
+	if err := s.repo.GetAll(ctx, contacts); err != nil {
+		return rerrors.NewInternalServerError(err)
+	}
 
-	return contact, nil
+	return nil
 }

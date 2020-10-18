@@ -9,18 +9,18 @@ import (
 
 //Contact model
 type Contact struct {
-	ID         uint   `gorm:"primaryKey" json:"id"`
-	UserID     uint   `json:"-"`
-	FirstName  string `gorm:"size:70" json:"subject"`
-	LastName   string `gorm:"size:50" json:"contentType"`
-	NickName   string `gorm:"type:text" json:"contentValue"`
-	Gender     string `json:"sandboxMode"` //`gorm:"size:50"`
-	Phone      string `json:"-"`
-	Photo      string
-	BirthDay   time.Time
-	TemplateID uint
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID         uint           `gorm:"primaryKey" json:"id"`
+	UserID     uint           `json:"user_id"`
+	Firstname  string         `gorm:"size:30" json:"firstname"`
+	Lastname   string         `gorm:"size:30" json:"lastname"`
+	Nickname   string         `gorm:"size:30" json:"nickname"`
+	Gender     string         `gorm:"size:1" json:"gender"`
+	Phone      string         `gorm:"size:30" json:"phone"`
+	Photo      string         `gorm:"size:200" json:"photo"`
+	Birthday   time.Time      `json:"birthday"`
+	TemplateID uint           `json:"template_id"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
 	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
 }
 

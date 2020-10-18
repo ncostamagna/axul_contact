@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,11 +24,33 @@ func NewRepo(db *gorm.DB, logger log.Logger) Repository {
 
 func (repo *repo) Create(ctx context.Context, contact *Contact) error {
 
-	return nil
+	logger := log.With(repo.logger, "method", "Create")
 
+	result := repo.db.Create(&contact)
+
+	if result.Error != nil {
+		_ = level.Error(logger).Log("err", result.Error)
+		return result.Error
+	}
+
+	_ = logger.Log("RowAffected", result.RowsAffected)
+	_ = logger.Log("ID", contact.ID)
+
+	return nil
 }
 
 func (repo *repo) GetAll(ctx context.Context, contact *[]Contact) error {
+
+	logger := log.With(repo.logger, "method", "GetAll")
+
+	result := repo.db.Find(&contact)
+
+	if result.Error != nil {
+		_ = level.Error(logger).Log("err", result.Error)
+		return result.Error
+	}
+
+	_ = logger.Log("RowAffected", result.RowsAffected)
 
 	return nil
 }
@@ -37,6 +61,11 @@ func (repo *repo) Get(ctx context.Context, contact *Contact, id uint) error {
 }
 
 func (repo *repo) Update(ctx context.Context, contact *Contact, contactValues Contact) error {
+
+	return nil
+}
+
+func (repo *repo) Delete(ctx context.Context, contact *[]Contact) error {
 
 	return nil
 }

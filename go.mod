@@ -8,6 +8,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.1.1
+	github.com/ncostamagna/rerrors v0.0.1
 	github.com/ncostamagna/response v0.0.0-20201017043355-ac5dda050332
 	github.com/prometheus/client_golang v1.3.0
 	github.com/stretchr/testify v1.6.1

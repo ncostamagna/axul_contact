@@ -2,12 +2,14 @@ package contacts
 
 import (
 	"context"
+
+	"github.com/ncostamagna/rerrors"
 )
 
 //Service interface
 type Service interface {
-	Create(ctx context.Context) (string, error)
-	Update(ctx context.Context) (*Contact, error)
-	Get(ctx context.Context) (Contact, error)
-	GetAll(ctx context.Context) ([]Contact, error)
+	Create(ctx context.Context, contact *Contact) rerrors.RestErr
+	Update(ctx context.Context) (*Contact, rerrors.RestErr)
+	Get(ctx context.Context) (Contact, rerrors.RestErr)
+	GetAll(ctx context.Context, contacts *[]Contact) rerrors.RestErr
 }
