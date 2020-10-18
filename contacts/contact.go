@@ -30,4 +30,5 @@ type Repository interface {
 	Update(ctx context.Context, contact *Contact, contactValues Contact) error
 	GetAll(ctx context.Context, contact *[]Contact) error
 	Get(ctx context.Context, contact *Contact, id uint) error
+	GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error
 }

@@ -2,6 +2,8 @@ package contacts
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/ncostamagna/rerrors"
@@ -57,7 +59,18 @@ func (s service) Get(ctx context.Context) (Contact, rerrors.RestErr) {
 	return contact, nil
 }
 
-func (s service) GetAll(ctx context.Context, contacts *[]Contact) rerrors.RestErr {
+func (s service) GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr {
+
+	days, err := strconv.Atoi(birthday)
+
+	fmt.Println(days)
+	fmt.Println(err)
+	if err == nil {
+		if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
+			return rerrors.NewInternalServerError(err)
+		}
+		return nil
+	}
 
 	if err := s.repo.GetAll(ctx, contacts); err != nil {
 		return rerrors.NewInternalServerError(err)

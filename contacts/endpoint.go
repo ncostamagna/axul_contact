@@ -71,10 +71,9 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 
 		req := request.(getRequest)
 		var contacts []Contact
-
 		fmt.Println(req)
 
-		if rerr := s.GetAll(ctx, &contacts); rerr != nil {
+		if rerr := s.GetAll(ctx, &contacts, req.birthday); rerr != nil {
 			resp := response.NewResponse(rerr.Message(), rerr.Status(), "", nil)
 			return resp, nil
 		}
