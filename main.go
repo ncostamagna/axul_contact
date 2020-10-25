@@ -24,6 +24,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/ncostamagna/axul_contact/contacts"
+	"github.com/ncostamagna/streetflow/slack"
 )
 
 func main() {
@@ -75,10 +76,12 @@ func main() {
 
 	flag.Parse()
 	ctx := context.Background()
+	slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
+	
 	var srv contacts.Service
 	{
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, logger)
+		srv = contacts.NewService(repository,slackTran, logger)
 
 	}
 

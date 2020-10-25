@@ -6,23 +6,27 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ncostamagna/streetflow/slack"
+
 	"github.com/ncostamagna/rerrors"
 
 	"github.com/go-kit/kit/log"
 )
 
 type service struct {
-	repo   Repository
-	logger log.Logger
+	repo      Repository
+	slackTran slack.SlackBuilder
+	logger    log.Logger
 }
 
 type updateCb func(uint, time.Time) error
 
 //NewService is a service handler
-func NewService(repo Repository, logger log.Logger) Service {
+func NewService(repo Repository, slackTran slack.SlackBuilder, logger log.Logger) Service {
 	return &service{
-		repo:   repo,
-		logger: logger,
+		repo:      repo,
+		slackTran: slackTran,
+		logger:    logger,
 	}
 }
 
