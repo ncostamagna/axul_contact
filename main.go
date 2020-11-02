@@ -76,13 +76,12 @@ func main() {
 
 	flag.Parse()
 	ctx := context.Background()
-	slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
-	
+
 	var srv contacts.Service
 	{
+		slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository,slackTran, logger)
-
+		srv = contacts.NewService(repository, *slackTran, logger)
 	}
 
 	errs := make(chan error)
