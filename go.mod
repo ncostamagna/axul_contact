@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/go-kit/kit v0.10.0
+	github.com/golang/protobuf v1.4.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
@@ -13,5 +14,7 @@ require (
 	github.com/ncostamagna/streetflow v0.0.0-20201018225034-e8f7c4cc2647
 	github.com/prometheus/client_golang v1.3.0
 	github.com/stretchr/testify v1.6.1
+	google.golang.org/grpc v1.27.0
+	google.golang.org/protobuf v1.25.0
 	gorm.io/gorm v1.20.2
 )

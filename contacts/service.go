@@ -16,6 +16,7 @@ import (
 type service struct {
 	repo      Repository
 	slackTran slack.SlackBuilder
+	tempTran  Transport
 	logger    log.Logger
 }
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/joho/godotenv"
 
 	"context"
@@ -79,9 +81,10 @@ func main() {
 
 	var srv contacts.Service
 	{
+		tempTran := contacts.NewClient(":50055", "", contacts.GRPC)
 		slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, *slackTran, logger)
+		srv = contacts.NewService(repository, *slackTran, tempTran, logger)
 	}
 
 	errs := make(chan error)
@@ -99,6 +102,56 @@ func main() {
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
 
+	fmt.Println()
+	fmt.Println("Same Value")
+
+	start1 := time.Now()
+
+	recur := 5000
+	for i := 1; i < recur; i++ {
+		contacts.GetTemplate(1)
+	}
+
+	elapsed1 := time.Since(start1)
+
+	fmt.Printf("gRPC took %s", elapsed1)
+
+	start2 := time.Now()
+
+	fmt.Println()
+	for i := 1; i < recur; i++ {
+		contacts.GetTemplateHTTP(1)
+	}
+
+	elapsed2 := time.Since(start2)
+
+	fmt.Printf("HTTP took %s", elapsed2)
+
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("Others Values")
+	start1 = time.Now()
+
+	for i := 1; i < recur; i++ {
+		contacts.GetTemplate(uint(i))
+	}
+
+	elapsed1 = time.Since(start1)
+
+	fmt.Printf("gRPC took %s", elapsed1)
+
+	start2 = time.Now()
+
+	fmt.Println()
+	/* 	for i := 1; i < recur; i++ {
+		contacts.GetTemplateHTTP(uint(i))
+	} */
+
+	elapsed2 = time.Since(start2)
+
+	fmt.Printf("HTTP took %s", elapsed2)
+	fmt.Println()
+	fmt.Println()
 	go func() {
 		fmt.Println("listening on port", *httpAddr)
 		errs <- http.ListenAndServe(*httpAddr, nil)
