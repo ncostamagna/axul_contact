@@ -52,6 +52,13 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 		opts...,
 	)).Methods("DELETE")
 
+	r.Handle("/contacts/alert", httptransport.NewServer(
+		endpoints.Alert,
+		decodeGetContact,
+		encodeResponse,
+		opts...,
+	)).Methods("POST")
+
 	return r
 
 }

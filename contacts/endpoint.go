@@ -21,6 +21,7 @@ type Endpoints struct {
 	Update endpoint.Endpoint
 	Get    endpoint.Endpoint
 	GetAll endpoint.Endpoint
+	Alert  endpoint.Endpoint
 }
 
 //MakeEndpoints handler endpoints
@@ -30,6 +31,7 @@ func MakeEndpoints(s Service) Endpoints {
 		Update: makeUpdateEndpoint(s),
 		Get:    makeGetEndpoint(s),
 		GetAll: makeGetAllEndpoint(s),
+		Alert:  makeAlertEndpoint(s),
 	}
 }
 
@@ -89,6 +91,12 @@ func makeUpdateEndpoint(s Service) endpoint.Endpoint {
 }
 
 func makeGetEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		return nil, nil
+	}
+}
+
+func makeAlertEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		return nil, nil
 	}

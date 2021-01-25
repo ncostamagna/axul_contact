@@ -27,9 +27,32 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/ncostamagna/axul_contact/contacts"
 	"github.com/ncostamagna/streetflow/slack"
+	"github.com/ncostamagna/streetflow/telegram"
 )
 
 func main() {
+
+	b, err11 := tb.NewBot(tb.Settings{
+		// You can also set custom API URL.
+		// If field is empty it equals to "https://api.telegram.org".
+		URL: "https://149.154.167.40:443",
+
+		Token:  "5101b7cda1e99c3456a56b4753b07afa",
+		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+	})
+
+	if err11 != nil {
+		fmt.Println(err11)
+		return
+	}
+
+	b.Handle("/hello", func(m *tb.Message) {
+		b.Send(m.Sender, "Hello World!")
+	})
+
+	b.Start()
+
+	fmt.Println("Initial")
 
 	fmt.Println("Initial")
 	var logger log.Logger
@@ -83,8 +106,9 @@ func main() {
 	{
 		tempTran := contacts.NewClient(":50055", "", contacts.GRPC)
 		slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
+		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, *slackTran, tempTran, logger)
+		srv = contacts.NewService(repository, *slackTran,*telegTran, tempTran, logger)
 	}
 
 	errs := make(chan error)
