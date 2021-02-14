@@ -3,6 +3,7 @@ package contacts
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/ncostamagna/response"
@@ -32,7 +33,7 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}
 }
 
 func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, error) {
-
+	fmt.Println("decodeCreateContact")
 	var req ContactRequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -44,7 +45,7 @@ func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, err
 }
 
 func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error) {
-
+	fmt.Println("decodeGetContact")
 	v := r.URL.Query()
 
 	req := getRequest{

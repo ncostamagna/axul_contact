@@ -98,6 +98,15 @@ func makeGetEndpoint(s Service) endpoint.Endpoint {
 
 func makeAlertEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		return nil, nil
+		req := request.(getRequest)
+		var contacts []Contact
+		fmt.Println(req)
+
+		if rerr := s.Alert(ctx, &contacts, req.birthday); rerr != nil {
+			resp := response.NewResponse(rerr.Message(), rerr.Status(), "", nil)
+			return resp, nil
+		}
+
+		return response.NewResponse("Success", 200, "", contacts), nil
 	}
 }

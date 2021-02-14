@@ -41,4 +41,5 @@ type Service interface {
 	Update(ctx context.Context) (*Contact, rerrors.RestErr)
 	Get(ctx context.Context) (Contact, rerrors.RestErr)
 	GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+	Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
 }

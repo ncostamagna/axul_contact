@@ -32,28 +32,6 @@ import (
 
 func main() {
 
-	b, err11 := tb.NewBot(tb.Settings{
-		// You can also set custom API URL.
-		// If field is empty it equals to "https://api.telegram.org".
-		URL: "https://149.154.167.40:443",
-
-		Token:  "5101b7cda1e99c3456a56b4753b07afa",
-		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
-	})
-
-	if err11 != nil {
-		fmt.Println(err11)
-		return
-	}
-
-	b.Handle("/hello", func(m *tb.Message) {
-		b.Send(m.Sender, "Hello World!")
-	})
-
-	b.Start()
-
-	fmt.Println("Initial")
-
 	fmt.Println("Initial")
 	var logger log.Logger
 	{
@@ -71,7 +49,6 @@ func main() {
 		_ = level.Info(logger).Log("msg", "service ended")
 	}()
 
-	fmt.Println("Env")
 	err := godotenv.Load()
 	if err != nil {
 		_ = level.Error(logger).Log("Error loading .env file", err)
@@ -86,7 +63,7 @@ func main() {
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_NAME"))
-
+	time.Sleep(8 * time.Second)
 	db, err := gorm.Open("mysql", mysqlInfo)
 	if err != nil {
 		_ = level.Error(logger).Log("exit", err)
@@ -105,10 +82,10 @@ func main() {
 	var srv contacts.Service
 	{
 		tempTran := contacts.NewClient(":50055", "", contacts.GRPC)
-		slackTran, _ := slack.NewSlackBuilder("birthday", "xoxb-1448869030753-1436532267283-AZoMMLoxODNMC5xydelq1uLP").Build()
+		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
 		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, *slackTran,*telegTran, tempTran, logger)
+		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran, logger)
 	}
 
 	errs := make(chan error)
@@ -126,7 +103,7 @@ func main() {
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
 
-	fmt.Println()
+	/* fmt.Println()
 	fmt.Println("Same Value")
 
 	start1 := time.Now()
@@ -167,15 +144,13 @@ func main() {
 	start2 = time.Now()
 
 	fmt.Println()
-	/* 	for i := 1; i < recur; i++ {
-		contacts.GetTemplateHTTP(uint(i))
-	} */
+
 
 	elapsed2 = time.Since(start2)
 
 	fmt.Printf("HTTP took %s", elapsed2)
 	fmt.Println()
-	fmt.Println()
+	fmt.Println() */
 	go func() {
 		fmt.Println("listening on port", *httpAddr)
 		errs <- http.ListenAndServe(*httpAddr, nil)

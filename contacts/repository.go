@@ -63,7 +63,7 @@ func (repo *repo) Get(ctx context.Context, contact *Contact, id uint) error {
 
 func (repo *repo) GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error {
 
-	date := time.Now().AddDate(0, 0, -1*days)
+	date := time.Now().AddDate(0, 0, days)
 	day, month := date.Day(), int(date.Month())
 	repo.db.Where("month(birthday) = ? and day(birthday) = ?", month, day).Find(&contacts)
 	return nil
