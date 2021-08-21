@@ -51,8 +51,8 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		_ = level.Error(logger).Log("Error loading .env file", err)
-		os.Exit(-1)
+		_ = level.Info(logger).Log("Error loading .env file", err)
+		//os.Exit(-1)
 	}
 
 	var httpAddr = flag.String("http", ":"+os.Getenv("APP_PORT"), "http listen address")
@@ -98,7 +98,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/contacts/", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
+	mux.Handle("/contacts", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())

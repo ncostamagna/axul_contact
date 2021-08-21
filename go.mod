@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.4.1
+	github.com/google/uuid v1.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0

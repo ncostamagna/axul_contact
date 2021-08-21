@@ -1,0 +1,28 @@
+version: "3.5"
+services:
+    mysql:
+        container_name: axul_contact
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        environment:
+            - APP_PORT=8080
+            - DATABASE_HOST=
+            - DATABASE_PORT=3306
+            - DATABASE_NAME=
+            - DATABASE_USER=root
+            - DATABASE_PASSWORD=
+            - DATABASE_DEBUG=true
+        logging:
+            driver: "json-file"
+            options:
+                max-file: "5"
+                max-size: "10m"
+        networks:
+            - appnet
+networks:
+    appnet:
+        driver: "bridge"
+            

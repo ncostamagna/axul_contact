@@ -14,6 +14,15 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
+//Service interface
+type Service interface {
+	Create(ctx context.Context, contact *Contact) rerrors.RestErr
+	Update(ctx context.Context) (*Contact, rerrors.RestErr)
+	Get(ctx context.Context, id string) (*Contact, rerrors.RestErr)
+	GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+	Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+}
+
 type service struct {
 	repo      Repository
 	slackTran *slack.SlackBuilder
@@ -60,19 +69,20 @@ func (s service) Delete(ctx context.Context) (*Contact, rerrors.RestErr) {
 	return &contact, nil
 }
 
-func (s service) Get(ctx context.Context) (Contact, rerrors.RestErr) {
+func (s service) Get(ctx context.Context, id string) (*Contact, rerrors.RestErr) {
 
 	contact := Contact{}
+	if err := s.repo.Get(ctx, &contact, id); err != nil {
+		return nil, rerrors.NewBadRequestError(err)
+	}
 
-	return contact, nil
+	return &contact, nil
 }
 
 func (s service) GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr {
 
 	days, err := strconv.Atoi(birthday)
 
-	fmt.Println(days)
-	fmt.Println(err)
 	if err == nil {
 		if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
 			return rerrors.NewInternalServerError(err)

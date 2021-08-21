@@ -6,9 +6,19 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/google/uuid"
 
 	"github.com/jinzhu/gorm"
 )
+
+//Repository is a Repository handler interface
+type Repository interface {
+	Create(ctx context.Context, contact *Contact) error
+	Update(ctx context.Context, contact *Contact, contactValues Contact) error
+	GetAll(ctx context.Context, contact *[]Contact) error
+	Get(ctx context.Context, contact *Contact, id string) error
+	GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error
+}
 
 type repo struct {
 	db     *gorm.DB
@@ -27,6 +37,7 @@ func (repo *repo) Create(ctx context.Context, contact *Contact) error {
 
 	logger := log.With(repo.logger, "method", "Create")
 
+	contact.ID = uuid.New().String()
 	result := repo.db.Create(&contact)
 
 	if result.Error != nil {
@@ -56,9 +67,9 @@ func (repo *repo) GetAll(ctx context.Context, contact *[]Contact) error {
 	return nil
 }
 
-func (repo *repo) Get(ctx context.Context, contact *Contact, id uint) error {
-
-	return nil
+func (repo *repo) Get(ctx context.Context, contact *Contact, id string) error {
+	result := repo.db.Where("id = ?", id).First(&contact)
+	return result.Error
 }
 
 func (repo *repo) GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error {

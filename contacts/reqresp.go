@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/ncostamagna/response"
 )
 
@@ -47,8 +48,10 @@ func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, err
 func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error) {
 	fmt.Println("decodeGetContact")
 	v := r.URL.Query()
+	vars := mux.Vars(r)
 
 	req := getRequest{
+		id:       vars["id"],
 		birthday: v.Get("birthday"),
 	}
 	return req, nil
