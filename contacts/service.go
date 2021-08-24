@@ -19,7 +19,7 @@ type Service interface {
 	Create(ctx context.Context, contact *Contact) rerrors.RestErr
 	Update(ctx context.Context) (*Contact, rerrors.RestErr)
 	Get(ctx context.Context, id string) (*Contact, rerrors.RestErr)
-	GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+	GetAll(ctx context.Context, contacts *[]Contact, f Filter) rerrors.RestErr
 	Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
 }
 
@@ -79,9 +79,9 @@ func (s service) Get(ctx context.Context, id string) (*Contact, rerrors.RestErr)
 	return &contact, nil
 }
 
-func (s service) GetAll(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr {
+func (s service) GetAll(ctx context.Context, contacts *[]Contact, f Filter) rerrors.RestErr {
 
-	days, err := strconv.Atoi(birthday)
+	days, err := strconv.Atoi(f.birthday)
 
 	if err == nil {
 		if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
@@ -90,7 +90,7 @@ func (s service) GetAll(ctx context.Context, contacts *[]Contact, birthday strin
 		return nil
 	}
 
-	if err := s.repo.GetAll(ctx, contacts); err != nil {
+	if err := s.repo.GetAll(ctx, contacts, f); err != nil {
 		return rerrors.NewInternalServerError(err)
 	}
 

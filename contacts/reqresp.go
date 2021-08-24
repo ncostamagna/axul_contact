@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/ncostamagna/response"
@@ -22,7 +23,11 @@ type (
 	}
 
 	getRequest struct {
-		id       string
+		id string
+	}
+
+	getAllReq struct {
+		days     int64
 		birthday string
 	}
 )
@@ -46,13 +51,21 @@ func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, err
 }
 
 func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error) {
-	fmt.Println("decodeGetContact")
-	v := r.URL.Query()
 	vars := mux.Vars(r)
 
 	req := getRequest{
-		id:       vars["id"],
+		id: vars["id"],
+	}
+	return req, nil
+}
+
+func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
+	v := r.URL.Query()
+	fmt.Println(v.Get("days"))
+	d, _ := strconv.ParseInt(v.Get("days"), 0, 64)
+	req := getAllReq{
 		birthday: v.Get("birthday"),
+		days:     d,
 	}
 	return req, nil
 }

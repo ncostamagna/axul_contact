@@ -2,6 +2,8 @@ package contacts
 
 import (
 	"context"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -11,11 +13,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Filter struct {
+	days     int64
+	birthday string
+}
+
 //Repository is a Repository handler interface
 type Repository interface {
 	Create(ctx context.Context, contact *Contact) error
 	Update(ctx context.Context, contact *Contact, contactValues Contact) error
-	GetAll(ctx context.Context, contact *[]Contact) error
+	GetAll(ctx context.Context, contact *[]Contact, f Filter) error
 	Get(ctx context.Context, contact *Contact, id string) error
 	GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error
 }
@@ -51,11 +58,40 @@ func (repo *repo) Create(ctx context.Context, contact *Contact) error {
 	return nil
 }
 
-func (repo *repo) GetAll(ctx context.Context, contact *[]Contact) error {
+func (repo *repo) GetAll(ctx context.Context, contact *[]Contact, f Filter) error {
+
+	var tx *gorm.DB
+
+	tx = repo.db.Model(&contact)
+	currentTime := time.Now().UTC()
+	first := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, time.UTC)
+
+	if f.days != 0 {
+		second := first.AddDate(0, 0, int(f.days)).Add(time.Hour * 20)
+		tx = tx.Where("CONCAT('"+strconv.Itoa(first.Year())+"',DATE_FORMAT(birthday,'%m%d')) between DATE_FORMAT(?,'%Y%m%d') and DATE_FORMAT(?,'%Y%m%d')", first, second)
+	}
 
 	logger := log.With(repo.logger, "method", "GetAll")
 
-	result := repo.db.Find(&contact)
+	result := tx.Find(&contact)
+
+	for i := range *contact {
+		year := currentTime.Year()
+		if (*contact)[i].Birthday.Month() < currentTime.Month() {
+			year++
+		} else if (*contact)[i].Birthday.Month() == currentTime.Month() {
+			if (*contact)[i].Birthday.Day() < currentTime.Day() {
+				year++
+			}
+		}
+
+		bd := time.Date(year, (*contact)[i].Birthday.Month(), (*contact)[i].Birthday.Day(), 0, 0, 0, 0, time.UTC)
+		(*contact)[i].Days = int64(bd.Sub(first).Hours() / 24)
+	}
+
+	sort.SliceStable(*contact, func(i, j int) bool {
+		return (*contact)[i].Days < (*contact)[j].Days
+	})
 
 	if result.Error != nil {
 		_ = level.Error(logger).Log("err", result.Error)

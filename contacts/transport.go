@@ -26,7 +26,7 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 
 	r.Handle("/contacts", httptransport.NewServer(
 		endpoints.GetAll,
-		decodeGetContact,
+		decodeGetAll,
 		encodeResponse,
 		opts...,
 	)).Methods("GET")
@@ -54,7 +54,7 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 
 	r.Handle("/contacts/alert", httptransport.NewServer(
 		endpoints.Alert,
-		decodeGetContact,
+		decodeGetAll,
 		encodeResponse,
 		opts...,
 	)).Methods("POST")

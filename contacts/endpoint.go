@@ -71,11 +71,15 @@ func makeCreateEndpoint(s Service) endpoint.Endpoint {
 func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 
-		req := request.(getRequest)
+		req := request.(getAllReq)
 		var contacts []Contact
-		fmt.Println(req)
 
-		if rerr := s.GetAll(ctx, &contacts, req.birthday); rerr != nil {
+		f := Filter{
+			birthday: req.birthday,
+			days:     req.days,
+		}
+
+		if rerr := s.GetAll(ctx, &contacts, f); rerr != nil {
 			resp := response.NewResponse(rerr.Message(), rerr.Status(), "", nil)
 			return resp, nil
 		}
@@ -106,7 +110,7 @@ func makeGetEndpoint(s Service) endpoint.Endpoint {
 
 func makeAlertEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(getRequest)
+		req := request.(getAllReq)
 		var contacts []Contact
 		fmt.Println(req)
 

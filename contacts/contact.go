@@ -19,6 +19,7 @@ type Contact struct {
 	Instagram  string         `gorm:"size:40" json:"instagram"`
 	Photo      string         `gorm:"size:200" json:"photo"`
 	Birthday   time.Time      `json:"birthday"`
+	Days       int64          `gorm:"-" json:"days"`
 	TemplateID string         `json:"template_id"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`
