@@ -77,6 +77,8 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 		f := Filter{
 			birthday: req.birthday,
 			days:     req.days,
+			name:     req.name,
+			month:    req.month,
 		}
 
 		if rerr := s.GetAll(ctx, &contacts, f); rerr != nil {

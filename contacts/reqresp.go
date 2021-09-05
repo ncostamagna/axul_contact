@@ -29,6 +29,8 @@ type (
 	getAllReq struct {
 		days     int64
 		birthday string
+		name     string
+		month    int16
 	}
 )
 
@@ -61,11 +63,13 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 
 func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
 	v := r.URL.Query()
-	fmt.Println(v.Get("days"))
 	d, _ := strconv.ParseInt(v.Get("days"), 0, 64)
+	m, _ := strconv.ParseInt(v.Get("month"), 0, 64)
 	req := getAllReq{
 		birthday: v.Get("birthday"),
 		days:     d,
+		month:    int16(m),
+		name:     v.Get("name"),
 	}
 	return req, nil
 }

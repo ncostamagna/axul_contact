@@ -16,6 +16,8 @@ import (
 type Filter struct {
 	days     int64
 	birthday string
+	name string
+	month int16
 }
 
 //Repository is a Repository handler interface
@@ -69,6 +71,14 @@ func (repo *repo) GetAll(ctx context.Context, contact *[]Contact, f Filter) erro
 	if f.days != 0 {
 		second := first.AddDate(0, 0, int(f.days)).Add(time.Hour * 20)
 		tx = tx.Where("CONCAT('"+strconv.Itoa(first.Year())+"',DATE_FORMAT(birthday,'%m%d')) between DATE_FORMAT(?,'%Y%m%d') and DATE_FORMAT(?,'%Y%m%d')", first, second)
+	}
+
+	if f.name != "" {
+		tx = tx.Where("UPPER(CONCAT(firstname, ' ', lastname, ' ', nickname)) like CONCAT('%',UPPER(?),'%')", f.name)
+	}
+
+	if f.month != 0 {
+		tx = tx.Where("MONTH(birthday) = ?", f.month)
 	}
 
 	logger := log.With(repo.logger, "method", "GetAll")
