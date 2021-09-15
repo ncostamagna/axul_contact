@@ -13,6 +13,7 @@ import (
 
 type (
 	ContactRequest struct {
+		Auth    Authentication
 		ID        uint   `json:"id"`
 		Firstname string `json:"firstname"`
 		Lastname  string `json:"lastname"`
@@ -23,14 +24,21 @@ type (
 	}
 
 	getRequest struct {
+		Auth    Authentication
 		id string
 	}
 
 	getAllReq struct {
+		Auth    Authentication
 		days     int64
 		birthday string
 		name     string
 		month    int16
+	}
+
+	Authentication struct {
+		ID    string
+		Token string
 	}
 )
 
@@ -49,6 +57,10 @@ func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, err
 	if err != nil {
 		return nil, err
 	}
+
+	req.Auth.ID = r.Header.Get("id")
+	req.Auth.Token = r.Header.Get("token")
+
 	return req, nil
 }
 
@@ -58,6 +70,10 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 	req := getRequest{
 		id: vars["id"],
 	}
+
+	req.Auth.ID = r.Header.Get("id")
+	req.Auth.Token = r.Header.Get("token")
+
 	return req, nil
 }
 
@@ -71,6 +87,10 @@ func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
 		month:    int16(m),
 		name:     v.Get("name"),
 	}
+
+	req.Auth.ID = r.Header.Get("id")
+	req.Auth.Token = r.Header.Get("token")
+
 	return req, nil
 }
 

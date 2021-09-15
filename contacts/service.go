@@ -2,12 +2,13 @@ package contacts
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"strconv"
-	"time"
-
+	"github.com/ncostamagna/axul_contact/pkg/client"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"strconv"
+	"time"
 
 	"github.com/ncostamagna/rerrors"
 
@@ -21,6 +22,7 @@ type Service interface {
 	Get(ctx context.Context, id string) (*Contact, rerrors.RestErr)
 	GetAll(ctx context.Context, contacts *[]Contact, f Filter) rerrors.RestErr
 	Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+	authorization(ctx context.Context, id, token string) error
 }
 
 type service struct {
@@ -28,17 +30,19 @@ type service struct {
 	slackTran *slack.SlackBuilder
 	telegTran *telegram.Transport
 	tempTran  Transport
+	userTran  client.Transport
 	logger    log.Logger
 }
 
 type updateCb func(uint, time.Time) error
 
 //NewService is a service handler
-func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, logger log.Logger) Service {
+func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, logger log.Logger) Service {
 	return &service{
 		repo:      repo,
 		slackTran: slackTran,
 		telegTran: telegTran,
+		userTran: userTran,
 		logger:    logger,
 	}
 }
@@ -140,4 +144,19 @@ func message(days int, nickname, phone string) string {
 	}
 
 	return ""
+}
+
+func (s *service) authorization(ctx context.Context, id, token string) error {
+	a, err := s.userTran.GetAuth(id, token)
+
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("invalid authentication")
+	}
+
+	if a < 1 {
+		return errors.New("invalid authorization")
+	}
+
+	return nil
 }

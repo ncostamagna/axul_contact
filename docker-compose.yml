@@ -15,6 +15,7 @@ services:
             - DATABASE_USER=root
             - DATABASE_PASSWORD=
             - DATABASE_DEBUG=true
+            - USER_GRPC_URL=
         logging:
             driver: "json-file"
             options:

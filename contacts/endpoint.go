@@ -38,6 +38,11 @@ func MakeEndpoints(s Service) Endpoints {
 func makeCreateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(ContactRequest)
+		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
+			rerr := rerrors.NewBadRequestError(err)
+			return response.NewResponse(rerr.Message(), rerr.Status(), "", nil), nil
+		}
+
 		birthday, err := time.Parse(layoutISO, fmt.Sprintf("%s 17:00:00", req.Birthday))
 
 		if err != nil {
@@ -72,6 +77,12 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 
 		req := request.(getAllReq)
+		fmt.Println(req.Auth.ID, req.Auth.Token)
+		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
+			rerr := rerrors.NewBadRequestError(err)
+			return response.NewResponse(rerr.Message(), rerr.Status(), "", nil), nil
+		}
+
 		var contacts []Contact
 
 		f := Filter{
@@ -99,6 +110,10 @@ func makeUpdateEndpoint(s Service) endpoint.Endpoint {
 func makeGetEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(getRequest)
+		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
+			rerr := rerrors.NewBadRequestError(err)
+			return response.NewResponse(rerr.Message(), rerr.Status(), "", nil), nil
+		}
 
 		contact, rerr := s.Get(ctx, req.id)
 		if rerr != nil {
@@ -113,6 +128,11 @@ func makeGetEndpoint(s Service) endpoint.Endpoint {
 func makeAlertEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(getAllReq)
+		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
+			rerr := rerrors.NewBadRequestError(err)
+			return response.NewResponse(rerr.Message(), rerr.Status(), "", nil), nil
+		}
+
 		var contacts []Contact
 		fmt.Println(req)
 
