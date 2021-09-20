@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/ncostamagna/axul_contact/pkg/client"
 	"time"
+
+	"github.com/ncostamagna/axul_contact/pkg/client"
 
 	"github.com/joho/godotenv"
 
@@ -82,12 +83,12 @@ func main() {
 
 	var srv contacts.Service
 	{
-		tempTran := contacts.NewClient(":50055", "", contacts.GRPC)
+		tempTran := contacts.NewClient(os.Getenv("USER_GRPC_URL"), "", contacts.GRPC)
 		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
 		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		userTran := client.NewClient(os.Getenv("USER_GRPC_URL"), "", client.GRPC)
 		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran,userTran, logger)
+		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran, userTran, logger)
 	}
 
 	errs := make(chan error)
