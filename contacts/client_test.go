@@ -9,8 +9,9 @@ func BenchmarkHttpSameValue(b *testing.B) {
 }
 
 func BenchmarkGrpcSameValue(b *testing.B) {
+	client := NewClient("", "", GRPC)
 	for i := 0; i < b.N; i++ {
-		GetTemplate(2)
+		client.GetTemplate(2)
 	}
 }
 
@@ -21,7 +22,8 @@ func BenchmarkHttpManyValue(b *testing.B) {
 }
 
 func BenchmarkGrpcManyValue(b *testing.B) {
+	client := NewClient("", "", GRPC)
 	for i := 0; i < b.N; i++ {
-		GetTemplate(uint(i))
+		client.GetTemplate(uint(i))
 	}
 }
