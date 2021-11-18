@@ -11,8 +11,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-var c pb.TemplatesServiceClient
-
 type Transport interface {
 	GetTemplate(id uint)
 }
@@ -45,7 +43,6 @@ func NewClient(url, key string, ct ClientType) Transport {
 	}
 
 	panic("Protocol hasn't been implement")
-	return nil
 
 }
 

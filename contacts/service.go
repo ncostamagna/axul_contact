@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+
 	"github.com/ncostamagna/axul_contact/pkg/client"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
-	"strconv"
-	"time"
 
 	"github.com/ncostamagna/rerrors"
 
@@ -29,12 +29,9 @@ type service struct {
 	repo      Repository
 	slackTran *slack.SlackBuilder
 	telegTran *telegram.Transport
-	tempTran  Transport
 	userTran  client.Transport
 	logger    log.Logger
 }
-
-type updateCb func(uint, time.Time) error
 
 //NewService is a service handler
 func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, logger log.Logger) Service {
@@ -42,7 +39,7 @@ func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *teleg
 		repo:      repo,
 		slackTran: slackTran,
 		telegTran: telegTran,
-		userTran: userTran,
+		userTran:  userTran,
 		logger:    logger,
 	}
 }

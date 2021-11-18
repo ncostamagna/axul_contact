@@ -1,0 +1,15 @@
+?   	github.com/ncostamagna/axul_contact	[no test files]
+goos: linux
+goarch: amd64
+pkg: github.com/ncostamagna/axul_contact/contacts
+cpu: 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz
+BenchmarkHttpSameValue
+BenchmarkHttpSameValue-8   	   21482	     56630 ns/op
+BenchmarkGrpcSameValue
+Entra
+2021/11/18 20:53:43 error RPC: rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing dial tcp: missing address"
+exit status 1
+FAIL	github.com/ncostamagna/axul_contact/contacts	1.789s
+?   	github.com/ncostamagna/axul_contact/pkg/client	[no test files]
+?   	github.com/ncostamagna/axul_contact/templatespb	[no test files]
+FAIL

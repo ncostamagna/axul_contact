@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+
 	"github.com/ncostamagna/axul_user/pkg/grpc/userpb"
 	"google.golang.org/grpc"
 )
@@ -46,8 +47,6 @@ func NewClient(baseURL, token string, ct ClientType) Transport {
 	}
 
 	panic("Protocol hasn't been implement")
-	return nil
-
 }
 
 func (c *clientGRPC) GetAuth(id, token string) (int32, error) {
