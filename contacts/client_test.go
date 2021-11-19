@@ -1,7 +1,6 @@
 package contacts
 
-import "testing"
-
+/*
 func BenchmarkHttpSameValue(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		GetTemplateHTTP(2)
@@ -27,3 +26,4 @@ func BenchmarkGrpcManyValue(b *testing.B) {
 		client.GetTemplate(uint(i))
 	}
 }
+*/
