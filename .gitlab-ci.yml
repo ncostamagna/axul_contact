@@ -74,8 +74,7 @@ publish:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_TOKEN"
     - docker info | grep Registry
     - apk add --no-cache docker-compose
+    - echo "$CI_COMMIT_TAG"
     - docker-compose build
-    - docker-compose up -d
-    - docker ps -a
     - docker images
-    - docker push ncostamagna/axul_contact:v1.0.1
+    - docker push ncostamagna/axul_contact:$CI_COMMIT_TAG
