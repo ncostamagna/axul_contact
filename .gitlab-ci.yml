@@ -1,17 +1,18 @@
 image: golang:1.16
 
 stages:
-  - build
+  - download
   - test
+  - publish
 
 .install_tempate: &install
   before_script:
     - export GOSUMDB=off
     - export GO111MODULE=on
 
-build:
+download:
   <<: *install
-  stage: build
+  stage: download
   script:
     - go get -d ./...
 
@@ -44,3 +45,12 @@ coverage-test-job: # This job runs in the test stage.
     paths:
       - coverage.html
       - bench.log
+
+publish:
+  <<: *install
+  stage: publish
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker info | grep Registry
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push "$CI_REGISTRY_IMAGE"
