@@ -17,7 +17,7 @@ download:
     - go get -d ./...
 
 
-unit-test-job: # This job runs in the test stage.
+.unit-test-job: # This job runs in the test stage.
   <<: *install
   stage: test
   script:
@@ -26,7 +26,7 @@ unit-test-job: # This job runs in the test stage.
     - go test ./... -v -covermode=atomic -coverpkg=./... -count=1 -race
     - echo "No test issues found."
 
-lint-test-job: # This job also runs in the test stage.
+.lint-test-job: # This job also runs in the test stage.
   <<: *install
   stage: test
   script:
@@ -36,7 +36,7 @@ lint-test-job: # This job also runs in the test stage.
     - $GOPATH/bin/golangci-lint run ./...
     - echo "No lint issues found."
 
-coverage-test-job: # This job runs in the test stage.
+.coverage-test-job: # This job runs in the test stage.
   <<: *install
   stage: test
   script:
@@ -59,5 +59,5 @@ publish:
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_TOKEN"
     - docker info | grep Registry
