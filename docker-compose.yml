@@ -1,7 +1,7 @@
 version: "3.5"
 services:
     axul_contact:
-        image: ncostamagna/axul_contact:v1.0.0
+        image: ncostamagna/axul_contact:v1.0.1
         build:
             context: .
             dockerfile: Dockerfile

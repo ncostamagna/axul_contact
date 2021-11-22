@@ -78,3 +78,4 @@ publish:
     - docker-compose up -d
     - docker ps -a
     - docker images
+    - docker push ncostamagna/axul_contact:v1.0.1
