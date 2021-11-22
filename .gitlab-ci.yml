@@ -74,4 +74,7 @@ publish:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_TOKEN"
     - docker info | grep Registry
     - apk add --no-cache docker-compose
+    - docker-compose build .
     - docker-compose up -d
+    - docker ps -a
+    - docker images
