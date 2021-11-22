@@ -5,12 +5,6 @@ stages:
   - test
   - publish
 
-after_script:
-  - cp -R $GOPATH ./_GO || :
-
-before_script:
-  - cp -R _GO $GOPATH
-
 .install_tempate: &install
   before_script:
     - export GOSUMDB=off
@@ -19,9 +13,6 @@ before_script:
 download:
   <<: *install
   stage: download
-  cache:
-    paths:
-      - .cache
   script:
     - go get -d ./...
 
@@ -29,9 +20,6 @@ download:
 unit-test-job: # This job runs in the test stage.
   <<: *install
   stage: test
-  cache:
-    paths:
-      - .cache
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
@@ -41,9 +29,6 @@ unit-test-job: # This job runs in the test stage.
 lint-test-job: # This job also runs in the test stage.
   <<: *install
   stage: test
-  cache:
-    paths:
-      - .cache
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
@@ -54,9 +39,6 @@ lint-test-job: # This job also runs in the test stage.
 coverage-test-job: # This job runs in the test stage.
   <<: *install
   stage: test
-  cache:
-    paths:
-      - .cache
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
@@ -73,9 +55,7 @@ coverage-test-job: # This job runs in the test stage.
 publish:
   <<: *install
   stage: publish
-  cache:
-    paths:
-      - .cache
+  image: docker:latest
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
