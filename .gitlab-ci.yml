@@ -9,6 +9,9 @@ stages:
   before_script:
     - export GOSUMDB=off
     - export GO111MODULE=on
+    - mkdir -p $GOPATH/src/github.com/ncostamagna $GOPATH/src/_/builds
+    - cp -r $CI_PROJECT_DIR $GOPATH/src/github.com/ncostamagna/axul_contact
+    - ln -s $GOPATH/src/github.com/ncostamagna $GOPATH/src/_/builds/
 
 download:
   <<: *install
