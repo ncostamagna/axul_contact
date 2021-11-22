@@ -59,7 +59,5 @@ publish:
   script:
     - mkdir -p .cache
     - export GOPATH="$CI_PROJECT_DIR/.cache"
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
     - docker info | grep Registry
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
