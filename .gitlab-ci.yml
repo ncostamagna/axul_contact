@@ -69,6 +69,6 @@ publish:
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_TOKEN"
     - apk add --no-cache docker-compose
-    - echo "$TAG"
+    - echo "$IMAGE_VERSION"
     - docker-compose build
-    - docker push ncostamagna/axul_contact:$TAG
+    - docker push ncostamagna/axul_contact:$IMAGE_VERSION
