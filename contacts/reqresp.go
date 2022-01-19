@@ -13,7 +13,7 @@ import (
 
 type (
 	ContactRequest struct {
-		Auth    Authentication
+		Auth      Authentication
 		ID        uint   `json:"id"`
 		Firstname string `json:"firstname"`
 		Lastname  string `json:"lastname"`
@@ -24,12 +24,12 @@ type (
 	}
 
 	getRequest struct {
-		Auth    Authentication
-		id string
+		Auth Authentication
+		id   string
 	}
 
 	getAllReq struct {
-		Auth    Authentication
+		Auth     Authentication
 		days     int64
 		birthday string
 		name     string

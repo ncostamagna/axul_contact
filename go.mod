@@ -3,6 +3,7 @@ module github.com/ncostamagna/axul_contact
 go 1.15
 
 require (
+	github.com/digitalhouse-dev/dh-kit v0.1.4 // indirect
 	github.com/go-kit/kit v0.11.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0

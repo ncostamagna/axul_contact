@@ -101,7 +101,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/contacts", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
+	mux.Handle("/", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
