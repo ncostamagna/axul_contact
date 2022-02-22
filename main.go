@@ -11,9 +11,9 @@ import (
 	"flag"
 	"fmt"
 
-	_ "github.com/lib/pq"
-
 	"github.com/go-kit/kit/log"
+	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 
 	"github.com/go-kit/kit/log/level"
 
@@ -103,7 +103,8 @@ func main() {
 
 	mux.Handle("/", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
 
-	http.Handle("/", accessControl(mux))
+	http.Handle("/", cors.AllowAll().Handler(accessControl(mux)))
+
 	http.Handle("/metrics", promhttp.Handler())
 
 	/* fmt.Println()
@@ -171,8 +172,8 @@ func main() {
 func accessControl(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
 
 		if r.Method == "OPTIONS" {
 			return
