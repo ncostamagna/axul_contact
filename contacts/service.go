@@ -2,7 +2,6 @@ package contacts
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -10,9 +9,9 @@ import (
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
 
+	"github.com/digitalhouse-dev/dh-kit/logger"
+	authentication "github.com/ncostamagna/axul_auth/auth"
 	"github.com/ncostamagna/rerrors"
-
-	"github.com/go-kit/kit/log"
 )
 
 //Service interface
@@ -30,16 +29,18 @@ type service struct {
 	slackTran *slack.SlackBuilder
 	telegTran *telegram.Transport
 	userTran  client.Transport
-	logger    log.Logger
+	auth      authentication.Auth
+	logger    logger.Logger
 }
 
 //NewService is a service handler
-func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, logger log.Logger) Service {
+func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, auth authentication.Auth, logger logger.Logger) Service {
 	return &service{
 		repo:      repo,
 		slackTran: slackTran,
 		telegTran: telegTran,
 		userTran:  userTran,
+		auth:      auth,
 		logger:    logger,
 	}
 }
@@ -144,16 +145,5 @@ func message(days int, nickname, phone string) string {
 }
 
 func (s *service) authorization(ctx context.Context, id, token string) error {
-	a, err := s.userTran.GetAuth(id, token)
-
-	if err != nil {
-		fmt.Println(err)
-		return errors.New("invalid authentication")
-	}
-
-	if a < 1 {
-		return errors.New("invalid authorization")
-	}
-
-	return nil
+	return s.auth.Access(id, token)
 }

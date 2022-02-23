@@ -2,22 +2,22 @@ package contacts
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/digitalhouse-dev/dh-kit/logger"
 	"github.com/google/uuid"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Filter struct {
 	days     int64
 	birthday string
-	name string
-	month int16
+	name     string
+	month    int16
 }
 
 //Repository is a Repository handler interface
@@ -30,32 +30,30 @@ type Repository interface {
 }
 
 type repo struct {
-	db     *gorm.DB
-	logger log.Logger
+	db  *gorm.DB
+	log logger.Logger
 }
 
 //NewRepo is a repositories handler
-func NewRepo(db *gorm.DB, logger log.Logger) Repository {
+func NewRepo(db *gorm.DB, logger logger.Logger) Repository {
 	return &repo{
-		db:     db,
-		logger: log.With(logger, "repo", "sql"),
+		db:  db,
+		log: logger,
 	}
 }
 
 func (repo *repo) Create(ctx context.Context, contact *Contact) error {
 
-	logger := log.With(repo.logger, "method", "Create")
-
 	contact.ID = uuid.New().String()
 	result := repo.db.Create(&contact)
 
 	if result.Error != nil {
-		_ = level.Error(logger).Log("err", result.Error)
+		_ = repo.log.CatchError
 		return result.Error
 	}
 
-	_ = logger.Log("RowAffected", result.RowsAffected)
-	_ = logger.Log("ID", contact.ID)
+	_ = repo.log.CatchMessage(fmt.Sprintf("Row: %d", result.RowsAffected))
+	_ = repo.log.CatchMessage(contact.ID)
 
 	return nil
 }
@@ -81,8 +79,6 @@ func (repo *repo) GetAll(ctx context.Context, contact *[]Contact, f Filter) erro
 		tx = tx.Where("MONTH(birthday) = ?", f.month)
 	}
 
-	logger := log.With(repo.logger, "method", "GetAll")
-
 	result := tx.Find(&contact)
 
 	for i := range *contact {
@@ -104,11 +100,10 @@ func (repo *repo) GetAll(ctx context.Context, contact *[]Contact, f Filter) erro
 	})
 
 	if result.Error != nil {
-		_ = level.Error(logger).Log("err", result.Error)
-		return result.Error
+		return repo.log.CatchError(result.Error)
 	}
 
-	_ = logger.Log("RowAffected", result.RowsAffected)
+	_ = repo.log.CatchMessage(fmt.Sprintf("Row: %d", result.RowsAffected))
 
 	return nil
 }

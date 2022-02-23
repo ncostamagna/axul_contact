@@ -1,21 +1,17 @@
 package main
 
 import (
-	"time"
-
-	"github.com/ncostamagna/axul_contact/pkg/client"
-
-	"github.com/joho/godotenv"
-
 	"context"
 	"flag"
 	"fmt"
 
-	"github.com/go-kit/kit/log"
+	"github.com/digitalhouse-dev/dh-kit/logger"
+	"github.com/joho/godotenv"
+	authentication "github.com/ncostamagna/axul_auth/auth"
+	"github.com/ncostamagna/axul_contact/pkg/client"
+
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
-
-	"github.com/go-kit/kit/log/level"
 
 	"net/http"
 
@@ -25,50 +21,36 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/ncostamagna/axul_contact/contacts"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
 
 	fmt.Println("Initial")
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(os.Stderr)
-		logger = log.NewSyncLogger(logger)
-		logger = log.With(logger,
-			"service", "postapp",
-			"time:", log.DefaultTimestampUTC,
-			"caller", log.DefaultCaller,
-		)
-	}
-
-	_ = level.Info(logger).Log("msg", "service started")
-	defer func() {
-		_ = level.Info(logger).Log("msg", "service ended")
-	}()
+	var log = logger.New(logger.LogOption{Debug: true})
 
 	err := godotenv.Load()
 	if err != nil {
-		_ = level.Info(logger).Log("Error loading .env file", err)
+		_ = log.CatchError(err)
 		//os.Exit(-1)
 	}
 
 	var httpAddr = flag.String("http", ":"+os.Getenv("APP_PORT"), "http listen address")
 
-	mysqlInfo := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	fmt.Println("DataBases")
+	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DATABASE_USER"),
 		os.Getenv("DATABASE_PASSWORD"),
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_NAME"))
-	time.Sleep(8 * time.Second)
-	db, err := gorm.Open("mysql", mysqlInfo)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		_ = level.Error(logger).Log("exit", err)
+		_ = log.CatchError(err)
 		os.Exit(-1)
 	}
 
@@ -76,10 +58,20 @@ func main() {
 		db = db.Debug()
 	}
 
-	db.AutoMigrate(contacts.Contact{})
+	if os.Getenv("DATABASE_MIGRATE") == "true" {
+		err := db.AutoMigrate(contacts.Contact{})
+		_ = log.CatchError(err)
+	}
 
 	flag.Parse()
 	ctx := context.Background()
+
+	token := os.Getenv("TOKEN")
+	auth, err := authentication.New(token)
+	if err != nil {
+		_ = log.CatchError(fmt.Errorf("%s err: %v", dsn, err))
+		os.Exit(-1)
+	}
 
 	var srv contacts.Service
 	{
@@ -87,8 +79,8 @@ func main() {
 		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
 		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		userTran := client.NewClient(os.Getenv("USER_GRPC_URL"), "", client.GRPC)
-		repository := contacts.NewRepo(db, logger)
-		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran, userTran, logger)
+		repository := contacts.NewRepo(db, log)
+		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran, userTran, auth, log)
 	}
 
 	errs := make(chan error)
@@ -107,54 +99,6 @@ func main() {
 
 	http.Handle("/metrics", promhttp.Handler())
 
-	/* fmt.Println()
-	fmt.Println("Same Value")
-
-	start1 := time.Now()
-
-	recur := 5000
-	for i := 1; i < recur; i++ {
-		contacts.GetTemplate(1)
-	}
-
-	elapsed1 := time.Since(start1)
-
-	fmt.Printf("gRPC took %s", elapsed1)
-
-	start2 := time.Now()
-
-	fmt.Println()
-	for i := 1; i < recur; i++ {
-		contacts.GetTemplateHTTP(1)
-	}
-
-	elapsed2 := time.Since(start2)
-
-	fmt.Printf("HTTP took %s", elapsed2)
-
-	fmt.Println()
-	fmt.Println()
-	fmt.Println("Others Values")
-	start1 = time.Now()
-
-	for i := 1; i < recur; i++ {
-		contacts.GetTemplate(uint(i))
-	}
-
-	elapsed1 = time.Since(start1)
-
-	fmt.Printf("gRPC took %s", elapsed1)
-
-	start2 = time.Now()
-
-	fmt.Println()
-
-
-	elapsed2 = time.Since(start2)
-
-	fmt.Printf("HTTP took %s", elapsed2)
-	fmt.Println()
-	fmt.Println() */
 	go func() {
 		fmt.Println("listening on port", *httpAddr)
 		errs <- http.ListenAndServe(*httpAddr, nil)
@@ -164,7 +108,7 @@ func main() {
 	err = <-errs
 
 	if err != nil {
-		_ = level.Error(logger).Log("exit", err)
+		_ = log.CatchError(err)
 	}
 
 }
