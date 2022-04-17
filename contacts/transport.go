@@ -22,42 +22,42 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 		decodeCreateContact,
 		encodeResponse,
 		opts...,
-	)).Methods("POST")
+	)).Methods("POST", "OPTIONS")
 
 	r.Handle("/contacts", httptransport.NewServer(
 		endpoints.GetAll,
 		decodeGetAll,
 		encodeResponse,
 		opts...,
-	)).Methods("GET")
+	)).Methods("GET", "OPTIONS")
 
 	r.Handle("/contacts/{id}", httptransport.NewServer(
 		endpoints.Get,
 		decodeGetContact,
 		encodeResponse,
 		opts...,
-	)).Methods("GET")
+	)).Methods("GET", "OPTIONS")
 
 	r.Handle("/contacts/{id}", httptransport.NewServer(
 		endpoints.Update,
 		nil,
 		encodeResponse,
 		opts...,
-	)).Methods("PUT")
+	)).Methods("PUT", "OPTIONS")
 
 	r.Handle("/contacts/{id}", httptransport.NewServer(
 		nil,
 		decodeCreateContact,
 		encodeResponse,
 		opts...,
-	)).Methods("DELETE")
+	)).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/contacts/alert", httptransport.NewServer(
 		endpoints.Alert,
 		decodeGetAll,
 		encodeResponse,
 		opts...,
-	)).Methods("POST")
+	)).Methods("POST", "OPTIONS")
 
 	return r
 
