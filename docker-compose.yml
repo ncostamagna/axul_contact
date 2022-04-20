@@ -6,7 +6,7 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "5000"
+            - "8080:8080"
         environment:
             - DATABASE_HOST=axul-dev.cb1inrror0lv.us-east-1.rds.amazonaws.com
             - DATABASE_PORT=3306
