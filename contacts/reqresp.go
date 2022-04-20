@@ -79,7 +79,9 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 
 func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
 	v := r.URL.Query()
+	fmt.Println("Entra")
 	fmt.Println(r.Header)
+	fmt.Println(r)
 	d, _ := strconv.ParseInt(v.Get("days"), 0, 64)
 	m, _ := strconv.ParseInt(v.Get("month"), 0, 64)
 	req := getAllReq{
