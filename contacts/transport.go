@@ -29,7 +29,7 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 		decodeGetAll,
 		encodeResponse,
 		opts...,
-	)).Methods("GET", "OPTIONS")
+	)).Methods("GET")
 
 	r.Handle("/contacts/{id}", httptransport.NewServer(
 		endpoints.Get,

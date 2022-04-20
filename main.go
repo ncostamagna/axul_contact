@@ -15,8 +15,6 @@ import (
 
 	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"os"
 	"os/signal"
 	"syscall"
@@ -97,8 +95,6 @@ func main() {
 
 	http.Handle("/", cors.AllowAll().Handler(accessControl(mux)))
 
-	http.Handle("/metrics", promhttp.Handler())
-
 	go func() {
 		fmt.Println("listening on port", *httpAddr)
 		errs <- http.ListenAndServe(*httpAddr, nil)
@@ -116,8 +112,8 @@ func main() {
 func accessControl(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
 
 		if r.Method == "OPTIONS" {
 			return
