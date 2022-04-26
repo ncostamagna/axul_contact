@@ -58,8 +58,8 @@ func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, err
 		return nil, err
 	}
 
-	req.Auth.ID = r.Header.Get("id")
-	req.Auth.Token = r.Header.Get("token")
+	req.Auth.ID = r.Header.Get("Id")
+	req.Auth.Token = r.Header.Get("Token")
 
 	return req, nil
 }
@@ -71,8 +71,8 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 		id: vars["id"],
 	}
 
-	req.Auth.ID = r.Header.Get("id")
-	req.Auth.Token = r.Header.Get("token")
+	req.Auth.ID = r.Header.Get("Id")
+	req.Auth.Token = r.Header.Get("Token")
 
 	return req, nil
 }
@@ -80,15 +80,19 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
 
 	v := r.URL.Query()
-	d, _ := strconv.ParseInt(v.Get("Days"), 0, 64)
-	m, _ := strconv.ParseInt(v.Get("Month"), 0, 64)
+	fmt.Println(v)
+	d, _ := strconv.ParseInt(v.Get("days"), 0, 64)
+	fmt.Println("days: ", d)
+
+	m, _ := strconv.ParseInt(v.Get("month"), 0, 64)
 	req := getAllReq{
-		birthday: v.Get("Birthday"),
+		birthday: v.Get("birthday"),
 		days:     d,
 		month:    int16(m),
-		name:     v.Get("Name"),
+		name:     v.Get("name"),
 	}
 
+	fmt.Println(req)
 	req.Auth.ID = r.Header.Get("Id")
 	req.Auth.Token = r.Header.Get("Token")
 
