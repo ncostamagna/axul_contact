@@ -1,27 +1,23 @@
 package main
 
 import (
-	"context"
-	"flag"
-	"fmt"
-
 	"github.com/digitalhouse-dev/dh-kit/logger"
 	"github.com/joho/godotenv"
 	authentication "github.com/ncostamagna/axul_auth/auth"
+	"github.com/ncostamagna/axul_contact/contacts"
 	"github.com/ncostamagna/axul_contact/pkg/client"
+	"github.com/ncostamagna/streetflow/slack"
+	"github.com/ncostamagna/streetflow/telegram"
 
-	_ "github.com/lib/pq"
-	"github.com/rs/cors"
-
+	"context"
+	"flag"
+	"fmt"
 	"net/http"
-
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/ncostamagna/axul_contact/contacts"
-	"github.com/ncostamagna/streetflow/slack"
-	"github.com/ncostamagna/streetflow/telegram"
+	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -30,12 +26,7 @@ func main() {
 
 	fmt.Println("Initial")
 	var log = logger.New(logger.LogOption{Debug: true})
-
-	err := godotenv.Load()
-	if err != nil {
-		_ = log.CatchError(err)
-		//os.Exit(-1)
-	}
+	_ = godotenv.Load()
 
 	var httpAddr = flag.String("http", ":"+os.Getenv("APP_PORT"), "http listen address")
 
@@ -46,9 +37,6 @@ func main() {
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_NAME"))
-
-	fmt.Println(dsn)
-
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		_ = log.CatchError(err)
@@ -115,8 +103,8 @@ func main() {
 func accessControl(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
 
 		if r.Method == "OPTIONS" {
 			return

@@ -49,30 +49,29 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}
 }
 
 func decodeCreateContact(ctx context.Context, r *http.Request) (interface{}, error) {
-	fmt.Println("decodeCreateContact")
 	var req ContactRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
 	}
 
-	req.Auth.ID = r.Header.Get("Id")
-	req.Auth.Token = r.Header.Get("Token")
+	v := r.URL.Query()
+	req.Auth.ID = v.Get("userid")
+	req.Auth.Token = r.Header.Get("Authorization")
 
 	return req, nil
 }
 
 func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
+	pp := mux.Vars(r)
 
 	req := getRequest{
-		id: vars["id"],
+		id: pp["id"],
 	}
 
-	req.Auth.ID = r.Header.Get("Id")
-	req.Auth.Token = r.Header.Get("Token")
+	qs := r.URL.Query()
+	req.Auth.ID = qs.Get("userid")
+	req.Auth.Token = r.Header.Get("Authorization")
 
 	return req, nil
 }
@@ -92,9 +91,8 @@ func decodeGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
 		name:     v.Get("name"),
 	}
 
-	fmt.Println(req)
-	req.Auth.ID = r.Header.Get("Id")
-	req.Auth.Token = r.Header.Get("Token")
+	req.Auth.ID = v.Get("userid")
+	req.Auth.Token = r.Header.Get("Authorization")
 
 	return req, nil
 }
