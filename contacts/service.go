@@ -145,5 +145,6 @@ func message(days int, nickname, phone string) string {
 }
 
 func (s *service) authorization(ctx context.Context, id, token string) error {
+	fmt.Println(id, token)
 	return s.auth.Access(id, token)
 }
