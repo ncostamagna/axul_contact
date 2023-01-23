@@ -1,4 +1,4 @@
-package contacts
+package contact
 
 import (
 	"context"
@@ -20,12 +20,12 @@ type Filter struct {
 	month    int16
 }
 
-//Repository is a Repository handler interface
+// Repository is a Repository handler interface
 type Repository interface {
 	Create(ctx context.Context, contact *Contact) error
 	Update(ctx context.Context, contact *Contact, contactValues Contact) error
 	GetAll(ctx context.Context, contact *[]Contact, f Filter) error
-	Get(ctx context.Context, contact *Contact, id string) error
+	Get(ctx context.Context, id string) (*Contact, error)
 	GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error
 }
 
@@ -34,7 +34,7 @@ type repo struct {
 	log logger.Logger
 }
 
-//NewRepo is a repositories handler
+// NewRepo is a repositories handler
 func NewRepo(db *gorm.DB, logger logger.Logger) Repository {
 	return &repo{
 		db:  db,
@@ -108,9 +108,13 @@ func (repo *repo) GetAll(ctx context.Context, contact *[]Contact, f Filter) erro
 	return nil
 }
 
-func (repo *repo) Get(ctx context.Context, contact *Contact, id string) error {
-	result := repo.db.Where("id = ?", id).First(&contact)
-	return result.Error
+func (repo *repo) Get(_ context.Context, id string) (*Contact, error) {
+	contact := Contact{}
+
+	if err := repo.db.Where("id = ?", id).First(&contact).Error; err != nil {
+		return nil, err
+	}
+	return &contact, nil
 }
 
 func (repo *repo) GetByBirthdayRange(ctx context.Context, contacts *[]Contact, days int) error {

@@ -1,4 +1,4 @@
-package contacts
+package contact
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//Contact model
+// Contact model
 type Contact struct {
 	ID         string         `gorm:"size:40;primaryKey" json:"id"`
 	UserID     string         `json:"user_id"`

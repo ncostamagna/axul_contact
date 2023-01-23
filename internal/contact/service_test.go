@@ -1,4 +1,4 @@
-package contacts
+package contact
 
 /* import (
 	addresses "gitlab.com/digitalhouse-dev/core/notifications/email/postapp/addresses"

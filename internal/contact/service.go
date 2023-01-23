@@ -1,9 +1,10 @@
-package contacts
+package contact
 
 import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/ncostamagna/axul_contact/pkg/client"
 	"github.com/ncostamagna/streetflow/slack"
@@ -11,16 +12,16 @@ import (
 
 	"github.com/digitalhouse-dev/dh-kit/logger"
 	authentication "github.com/ncostamagna/axul_auth/auth"
-	"github.com/ncostamagna/rerrors"
 )
 
-//Service interface
+// Service interface
 type Service interface {
-	Create(ctx context.Context, contact *Contact) rerrors.RestErr
-	Update(ctx context.Context) (*Contact, rerrors.RestErr)
-	Get(ctx context.Context, id string) (*Contact, rerrors.RestErr)
-	GetAll(ctx context.Context, contacts *[]Contact, f Filter) rerrors.RestErr
-	Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr
+	Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*Contact, error)
+	Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error
+	Delete(ctx context.Context, id string) error
+	Get(ctx context.Context, id string) (*Contact, error)
+	GetAll(ctx context.Context, contacts *[]Contact, f Filter) error
+	Alert(ctx context.Context, contacts *[]Contact, birthday string) error
 	authorization(ctx context.Context, id, token string) error
 }
 
@@ -33,7 +34,7 @@ type service struct {
 	logger    logger.Logger
 }
 
-//NewService is a service handler
+// NewService is a service handler
 func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, auth authentication.Auth, logger logger.Logger) Service {
 	return &service{
 		repo:      repo,
@@ -45,61 +46,61 @@ func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *teleg
 	}
 }
 
-//Create service
-func (s service) Create(ctx context.Context, contact *Contact) rerrors.RestErr {
+// Create service
+func (s service) Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*Contact, error) {
 
-	err := s.repo.Create(ctx, contact)
-
-	if err != nil {
-		return rerrors.NewInternalServerError(err)
+	c := Contact{
+		Firstname: firstName,
+		Lastname:  lastName,
+		Nickname:  nickName,
+		Gender:    gender,
+		Phone:     phone,
+		Birthday:  birthday,
 	}
 
+	if err := s.repo.Create(ctx, &c); err != nil {
+		return nil, err
+	}
+
+	return &c, nil
+}
+
+func (s service) Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error {
 	return nil
 }
 
-func (s service) Update(ctx context.Context) (*Contact, rerrors.RestErr) {
-
-	contact := Contact{}
-
-	return &contact, nil
+func (s service) Delete(ctx context.Context, id string) error {
+	return nil
 }
 
-func (s service) Delete(ctx context.Context) (*Contact, rerrors.RestErr) {
-
-	contact := Contact{}
-
-	return &contact, nil
-}
-
-func (s service) Get(ctx context.Context, id string) (*Contact, rerrors.RestErr) {
-
-	contact := Contact{}
-	if err := s.repo.Get(ctx, &contact, id); err != nil {
-		return nil, rerrors.NewBadRequestError(err)
+func (s service) Get(ctx context.Context, id string) (*Contact, error) {
+	c, err := s.repo.Get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
-	return &contact, nil
+	return c, nil
 }
 
-func (s service) GetAll(ctx context.Context, contacts *[]Contact, f Filter) rerrors.RestErr {
+func (s service) GetAll(ctx context.Context, contacts *[]Contact, f Filter) error {
 
 	days, err := strconv.Atoi(f.birthday)
 
 	if err == nil {
 		if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
-			return rerrors.NewInternalServerError(err)
+			return err
 		}
 		return nil
 	}
 
 	if err := s.repo.GetAll(ctx, contacts, f); err != nil {
-		return rerrors.NewInternalServerError(err)
+		return err
 	}
 
 	return nil
 }
 
-func (s service) Alert(ctx context.Context, contacts *[]Contact, birthday string) rerrors.RestErr {
+func (s service) Alert(ctx context.Context, contacts *[]Contact, birthday string) error {
 
 	days, err := strconv.Atoi(birthday)
 
@@ -108,7 +109,7 @@ func (s service) Alert(ctx context.Context, contacts *[]Contact, birthday string
 	}
 
 	if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
-		return rerrors.NewInternalServerError(err)
+		return err
 	}
 
 	for _, contact := range *contacts {

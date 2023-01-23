@@ -4,22 +4,19 @@ import (
 	"github.com/digitalhouse-dev/dh-kit/logger"
 	"github.com/joho/godotenv"
 	authentication "github.com/ncostamagna/axul_auth/auth"
-	"github.com/ncostamagna/axul_contact/contacts"
+	"github.com/ncostamagna/axul_contact/internal/contact"
 	"github.com/ncostamagna/axul_contact/pkg/client"
+	"github.com/ncostamagna/axul_contact/pkg/handler"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"time"
 
 	"context"
-	"flag"
 	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"github.com/rs/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -28,7 +25,7 @@ func main() {
 	var log = logger.New(logger.LogOption{Debug: true})
 	_ = godotenv.Load()
 
-	var httpAddr = flag.String("http", ":"+os.Getenv("APP_PORT"), "http listen address")
+	//var httpAddr = flag.String("http", ":"+os.Getenv("APP_PORT"), "http listen address")
 
 	fmt.Println("DataBases")
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
@@ -48,11 +45,11 @@ func main() {
 	}
 
 	if os.Getenv("DATABASE_MIGRATE") == "true" {
-		err := db.AutoMigrate(contacts.Contact{})
+		err := db.AutoMigrate(contact.Contact{})
 		_ = log.CatchError(err)
 	}
 
-	flag.Parse()
+	//flag.Parse()
 	ctx := context.Background()
 
 	token := os.Getenv("TOKEN")
@@ -62,38 +59,42 @@ func main() {
 		os.Exit(-1)
 	}
 
-	var srv contacts.Service
+	var service contact.Service
 	{
-		tempTran := contacts.NewClient(os.Getenv("USER_GRPC_URL"), "", contacts.GRPC)
+		tempTran := contact.NewClient(os.Getenv("USER_GRPC_URL"), "", contact.GRPC)
 		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
 		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		userTran := client.NewClient(os.Getenv("USER_GRPC_URL"), "", client.GRPC)
-		repository := contacts.NewRepo(db, log)
-		srv = contacts.NewService(repository, slackTran, &telegTran, tempTran, userTran, auth, log)
+		repository := contact.NewRepo(db, log)
+		service = contact.NewService(repository, slackTran, &telegTran, tempTran, userTran, auth, log)
 	}
 
-	errs := make(chan error)
-
-	go func() {
+	/*go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		errs <- fmt.Errorf("%s", <-c)
-	}()
+	}()*/
 
-	mux := http.NewServeMux()
+	h := handler.NewHTTPServer(ctx, contact.MakeEndpoints(service))
+	port := os.Getenv("APP_PORT")
+	address := fmt.Sprintf("127.0.0.1:%s", port)
+	srv := &http.Server{
+		Handler:      accessControl(h),
+		Addr:         address,
+		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  4 * time.Second,
+	}
 
-	mux.Handle("/", contacts.NewHTTPServer(ctx, contacts.MakeEndpoints(srv)))
-
-	http.Handle("/", cors.AllowAll().Handler(accessControl(mux)))
+	//http.Handle("/", cors.AllowAll().Handler(accessControl(mux)))
+	errSrv := make(chan error)
 
 	go func() {
-		fmt.Println("listening on port", *httpAddr)
-		errs <- http.ListenAndServe(*httpAddr, nil)
+		fmt.Println("listening on port", address)
+		errSrv <- srv.ListenAndServe()
 
 	}()
 
-	err = <-errs
-
+	err = <-errSrv
 	if err != nil {
 		_ = log.CatchError(err)
 	}

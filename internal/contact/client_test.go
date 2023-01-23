@@ -1,4 +1,4 @@
-package contacts
+package contact
 
 /*
 func BenchmarkHttpSameValue(b *testing.B) {
