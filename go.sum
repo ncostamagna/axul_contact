@@ -307,12 +307,10 @@ github.com/nats-io/nkeys v0.3.0/go.mod h1:gvUNGjVcM2IPr5rCsRsC6Wb3Hr2CQAm08dsxtV
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/ncostamagna/axul_auth v1.0.0 h1:LbjgEUxCF/Ap6wci8d3mju5uRy7DwSEfAtx+OkEE5hA=
 github.com/ncostamagna/axul_auth v1.0.0/go.mod h1:BSKt5mT4xcZ1EJLPVGHvSkoCaqyrFGn5C+QtadB8EP0=
+github.com/ncostamagna/axul_domain v0.0.2 h1:RWMfL+s+cxACcEmtT12Ccs1iuyGO3VmvMOobQZ7ci98=
+github.com/ncostamagna/axul_domain v0.0.2/go.mod h1:U500vm7pNQN6z95G5zvF+ecdCEWUuEWg1c2xOVKvLzk=
 github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de h1:MtxE4Hxans7KUDPbMRSk4FKkQ/cCFNKvFJ+nbN5M90o=
 github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de/go.mod h1:Vil7E9xLmNMRV+vYeOjeBQnKDRmXC1Te9Vlb8ceDFzs=
-github.com/ncostamagna/rerrors v0.0.1 h1:iTiEd2Z4fEO5LDO0ZqtD+bQZFifziWFmiAd9/2+o7NA=
-github.com/ncostamagna/rerrors v0.0.1/go.mod h1:65MYSOONyd4XhaiK+kJzLR2+sL9UUbtH1wNBHh24ecY=
-github.com/ncostamagna/response v0.0.0-20201017043355-ac5dda050332 h1:Pt4ElVK0XdMd79hCtj7KVMfAWh8vr1JVN4YYOst9VsE=
-github.com/ncostamagna/response v0.0.0-20201017043355-ac5dda050332/go.mod h1:qqzElbCdl7zI+G8cYMRdxpJFGrCeSdQ0zKNXEPV76yw=
 github.com/ncostamagna/streetflow v1.0.1 h1:aEpzVv5L5DgjKsFDwkG2o1a/XsDbX5nPSlMIi1iKQP8=
 github.com/ncostamagna/streetflow v1.0.1/go.mod h1:O1646r52K6W0GyIkAPdnXz6MRRFcrZPVpxZ2HmPxNJ8=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
@@ -637,8 +635,8 @@ gorm.io/driver/mysql v1.3.6/go.mod h1:sSIebwZAVPiT+27jK9HIwvsqOGKx3YMPmrA3mBJR10
 gorm.io/gorm v1.21.12/go.mod h1:F+OptMscr0P2F2qU97WT1WimdH9GaQPoDW7AYd5i2Y0=
 gorm.io/gorm v1.21.13/go.mod h1:F+OptMscr0P2F2qU97WT1WimdH9GaQPoDW7AYd5i2Y0=
 gorm.io/gorm v1.23.8/go.mod h1:l2lP/RyAtc1ynaTjFksBde/O8v9oOGIApu2/xRitmZk=
-gorm.io/gorm v1.23.9 h1:NSHG021i+MCznokeXR3udGaNyFyBQJW8MbjrJMVCfGw=
-gorm.io/gorm v1.23.9/go.mod h1:DVrVomtaYTbqs7gB/x2uVvqnXzv0nqjB396B8cG4dBA=
+gorm.io/gorm v1.24.3 h1:WL2ifUmzR/SLp85CSURAfybcHnGZ+yLSGSxgYXlFBHg=
+gorm.io/gorm v1.24.3/go.mod h1:DVrVomtaYTbqs7gB/x2uVvqnXzv0nqjB396B8cG4dBA=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 sigs.k8s.io/yaml v1.2.0/go.mod h1:yfXDCHCao9+ENCvLSE62v9VSji2MKu5jeNfTrofGhJc=

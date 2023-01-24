@@ -4,25 +4,24 @@ go 1.19
 
 require (
 	github.com/digitalhouse-dev/dh-kit v0.1.4
+	github.com/digitalhouse-tech/go-lib-kit v0.1.6
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-kit/kit v0.12.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/ncostamagna/axul_auth v1.0.0
+	github.com/ncostamagna/axul_domain v0.0.2
 	github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de
-	github.com/ncostamagna/rerrors v0.0.1
-	github.com/ncostamagna/response v0.0.0-20201017043355-ac5dda050332
 	github.com/ncostamagna/streetflow v1.0.1
 	google.golang.org/grpc v1.40.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.3.6
-	gorm.io/gorm v1.23.9
+	gorm.io/gorm v1.24.3
 )
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/digitalhouse-tech/go-lib-kit v0.1.6 // indirect
 	github.com/getsentry/sentry-go v0.11.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-kit/log v0.2.0 // indirect

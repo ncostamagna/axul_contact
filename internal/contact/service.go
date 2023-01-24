@@ -3,12 +3,12 @@ package contact
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"time"
-
 	"github.com/ncostamagna/axul_contact/pkg/client"
+	"github.com/ncostamagna/axul_domain/domain"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"strconv"
+	"time"
 
 	"github.com/digitalhouse-dev/dh-kit/logger"
 	authentication "github.com/ncostamagna/axul_auth/auth"
@@ -16,12 +16,13 @@ import (
 
 // Service interface
 type Service interface {
-	Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*Contact, error)
+	Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*domain.Contact, error)
 	Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error
 	Delete(ctx context.Context, id string) error
-	Get(ctx context.Context, id string) (*Contact, error)
-	GetAll(ctx context.Context, contacts *[]Contact, f Filter) error
-	Alert(ctx context.Context, contacts *[]Contact, birthday string) error
+	Get(ctx context.Context, id string) (*domain.Contact, error)
+	GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error)
+	Count(ctx context.Context, filters Filter) (int, error)
+	Alert(ctx context.Context, birthday string) ([]domain.Contact, error)
 	authorization(ctx context.Context, id, token string) error
 }
 
@@ -32,6 +33,14 @@ type service struct {
 	userTran  client.Transport
 	auth      authentication.Auth
 	logger    logger.Logger
+}
+
+type Filter struct {
+	RangeDays *int64
+	Birthday  *int
+	Name      string
+	Month     int16
+	firstDate time.Time
 }
 
 // NewService is a service handler
@@ -47,9 +56,9 @@ func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *teleg
 }
 
 // Create service
-func (s service) Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*Contact, error) {
+func (s service) Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*domain.Contact, error) {
 
-	c := Contact{
+	c := domain.Contact{
 		Firstname: firstName,
 		Lastname:  lastName,
 		Nickname:  nickName,
@@ -73,7 +82,7 @@ func (s service) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s service) Get(ctx context.Context, id string) (*Contact, error) {
+func (s service) Get(ctx context.Context, id string) (*domain.Contact, error) {
 	c, err := s.repo.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -82,53 +91,45 @@ func (s service) Get(ctx context.Context, id string) (*Contact, error) {
 	return c, nil
 }
 
-func (s service) GetAll(ctx context.Context, contacts *[]Contact, f Filter) error {
+func (s service) GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error) {
 
-	days, err := strconv.Atoi(f.birthday)
-
-	if err == nil {
-		if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
-			return err
-		}
-		return nil
+	cs, err := s.repo.GetAll(ctx, f, offset, limit)
+	if err != nil {
+		return nil, err
 	}
 
-	if err := s.repo.GetAll(ctx, contacts, f); err != nil {
-		return err
-	}
-
-	return nil
+	return cs, nil
 }
 
-func (s service) Alert(ctx context.Context, contacts *[]Contact, birthday string) error {
+func (s service) Alert(ctx context.Context, birthday string) ([]domain.Contact, error) {
 
 	days, err := strconv.Atoi(birthday)
-
 	if err != nil {
 		days = 0
 	}
 
-	if err := s.repo.GetByBirthdayRange(ctx, contacts, days); err != nil {
-		return err
+	cs, err := s.repo.GetAll(ctx, Filter{Birthday: &days}, 0, 0)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, contact := range *contacts {
-		fmt.Println(contact)
+	for _, c := range cs {
+		fmt.Println(c)
 		switch days {
 		case 1, 3:
 			//slack alert
 			fmt.Println("Slack Alert")
-			res := s.slackTran.SendMessage("<@U01CDEPA3T9> " + message(days, contact.Nickname, contact.Phone))
+			res := s.slackTran.SendMessage("<@U01CDEPA3T9> " + message(days, c.Nickname, c.Phone))
 			fmt.Println(res)
 		case 0:
 			//telegra alert
 			fmt.Println("Telegram Alert")
-			err := telegram.NewTelegramBuilder(*s.telegTran).Message(message(days, contact.Nickname, contact.Phone)).Send()
+			err := telegram.NewTelegramBuilder(*s.telegTran).Message(message(days, c.Nickname, c.Phone)).Send()
 			fmt.Println(err)
 		}
 	}
 
-	return nil
+	return cs, nil
 }
 
 func message(days int, nickname, phone string) string {
@@ -148,4 +149,8 @@ func message(days int, nickname, phone string) string {
 func (s *service) authorization(ctx context.Context, id, token string) error {
 	fmt.Println(id, token)
 	return s.auth.Access(id, token)
+}
+
+func (s service) Count(ctx context.Context, filters Filter) (int, error) {
+	return s.repo.Count(ctx, filters)
 }

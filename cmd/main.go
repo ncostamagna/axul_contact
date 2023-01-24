@@ -10,7 +10,7 @@ import (
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
 	"time"
-
+	"github.com/ncostamagna/axul_domain/domain"
 	"context"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -45,7 +45,7 @@ func main() {
 	}
 
 	if os.Getenv("DATABASE_MIGRATE") == "true" {
-		err := db.AutoMigrate(contact.Contact{})
+		err := db.AutoMigrate(domain.Contact{})
 		_ = log.CatchError(err)
 	}
 

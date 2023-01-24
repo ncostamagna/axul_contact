@@ -3,10 +3,11 @@ package contact
 import (
 	"context"
 	"fmt"
-	"time"
-
+	"github.com/digitalhouse-tech/go-lib-kit/meta"
 	"github.com/digitalhouse-tech/go-lib-kit/response"
 	"github.com/go-kit/kit/endpoint"
+	"strconv"
+	"time"
 )
 
 const (
@@ -37,6 +38,8 @@ type (
 		Birthday string
 		Name     string
 		Month    int16
+		Limit    int
+		Page     int
 	}
 
 	Authentication struct {
@@ -97,20 +100,39 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		var contacts []Contact
-
 		f := Filter{
-			birthday: req.Birthday,
-			days:     req.Days,
-			name:     req.Name,
-			month:    req.Month,
+			Name:      req.Name,
+			Month:     req.Month,
+			firstDate: time.Now().UTC(),
 		}
 
-		if err := s.GetAll(ctx, &contacts, f); err != nil {
+		if req.Birthday != "" {
+			days, err := strconv.Atoi(req.Birthday)
+			if err != nil {
+				return nil, response.BadRequest("Invalid birthday format in Query String")
+			}
+
+			f.Birthday = &days
+		}
+
+		if req.Days > 0 {
+			f.RangeDays = &req.Days
+		}
+
+		count, err := s.Count(ctx, f)
+		fmt.Println(count)
+		if err != nil {
 			return nil, response.InternalServerError(err.Error())
 		}
 
-		return response.OK("Success", contacts, nil, nil), nil
+		meta := meta.New(req.Page, req.Limit, count)
+
+		cs, err := s.GetAll(ctx, f, meta.Offset(), meta.Limit())
+		if err != nil {
+			return nil, response.InternalServerError(err.Error())
+		}
+
+		return response.OK("Success", cs, meta, nil), nil
 	}
 }
 
@@ -143,13 +165,12 @@ func makeAlertEndpoint(s Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		var contacts []Contact
 		fmt.Println(req)
-
-		if err := s.Alert(ctx, &contacts, req.Birthday); err != nil {
+		cs, err := s.Alert(ctx, req.Birthday)
+		if err != nil {
 			return nil, err
 		}
 
-		return response.OK("Success", contacts, nil, nil), nil
+		return response.OK("Success", cs, nil, nil), nil
 	}
 }
