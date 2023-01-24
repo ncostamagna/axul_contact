@@ -1,5 +1,6 @@
 package contact
 
+/*
 import (
 	"context"
 	"fmt"
@@ -67,6 +68,6 @@ func (f *clientGRPC) GetTemplate(id uint) {
 func GetTemplateHTTP(id uint) {
 	_, _ = http.Get(fmt.Sprintf("http://localhost:4000/templates/%d", id))
 
-	/* 	fmt.Println(resp)
-	   	fmt.Println(err)*/
+
 }
+*/

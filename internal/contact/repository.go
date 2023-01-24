@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/digitalhouse-dev/dh-kit/logger"
-	"github.com/google/uuid"
 	"github.com/ncostamagna/axul_domain/domain"
 	"gorm.io/gorm"
 )
@@ -35,18 +34,12 @@ func NewRepo(db *gorm.DB, logger logger.Logger) Repository {
 	}
 }
 
-func (repo *repo) Create(ctx context.Context, contact *domain.Contact) error {
+func (repo *repo) Create(_ context.Context, contact *domain.Contact) error {
 
-	contact.ID = uuid.New().String()
-	result := repo.db.Create(&contact)
-
-	if result.Error != nil {
+	if err := repo.db.Create(&contact).Error; err != nil {
 		_ = repo.log.CatchError
-		return result.Error
+		return err
 	}
-
-	_ = repo.log.CatchMessage(fmt.Sprintf("Row: %d", result.RowsAffected))
-	_ = repo.log.CatchMessage(contact.ID)
 
 	return nil
 }
@@ -107,10 +100,9 @@ func (repo *repo) Delete(ctx context.Context, contact *[]domain.Contact) error {
 	return nil
 }
 
-func (r *repo) Count(ctx context.Context, filters Filter) (int, error) {
+func (repo *repo) Count(ctx context.Context, filters Filter) (int, error) {
 	var count int64
-
-	tx := r.db.WithContext(ctx).Model(domain.Contact{})
+	tx := repo.db.WithContext(ctx).Model(domain.Contact{})
 	tx = applyFilters(tx, filters)
 	if err := tx.Count(&count).Error; err != nil {
 		fmt.Println(err)

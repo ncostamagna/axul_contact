@@ -3,7 +3,6 @@ package contact
 import (
 	"context"
 	"fmt"
-	"github.com/ncostamagna/axul_contact/pkg/client"
 	"github.com/ncostamagna/axul_domain/domain"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
@@ -30,7 +29,6 @@ type service struct {
 	repo      Repository
 	slackTran *slack.SlackBuilder
 	telegTran *telegram.Transport
-	userTran  client.Transport
 	auth      authentication.Auth
 	logger    logger.Logger
 }
@@ -44,12 +42,11 @@ type Filter struct {
 }
 
 // NewService is a service handler
-func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, tempTran Transport, userTran client.Transport, auth authentication.Auth, logger logger.Logger) Service {
+func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, auth authentication.Auth, logger logger.Logger) Service {
 	return &service{
 		repo:      repo,
 		slackTran: slackTran,
 		telegTran: telegTran,
-		userTran:  userTran,
 		auth:      auth,
 		logger:    logger,
 	}
