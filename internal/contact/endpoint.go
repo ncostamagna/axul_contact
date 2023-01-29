@@ -71,7 +71,7 @@ func makeCreateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(StoreReq)
 		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, err
+			return nil, response.Unauthorized(err.Error())
 		}
 
 		birthday, err := time.Parse(layoutISO, fmt.Sprintf("%s 17:00:00", req.Birthday))
@@ -97,7 +97,7 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 		req := request.(GetAllReq)
 		fmt.Println(req.Auth.ID, req.Auth.Token)
 		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, err
+			return nil, response.Unauthorized(err.Error())
 		}
 
 		f := Filter{
@@ -146,7 +146,7 @@ func makeGetEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetReq)
 		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, response.InternalServerError(err.Error())
+			return nil, response.Unauthorized(err.Error())
 		}
 
 		contact, err := s.Get(ctx, req.ID)
@@ -162,7 +162,7 @@ func makeAlertEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetAllReq)
 		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, err
+			return nil, response.Unauthorized(err.Error())
 		}
 
 		fmt.Println(req)
