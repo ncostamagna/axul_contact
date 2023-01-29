@@ -1,12 +1,9 @@
 FROM golang:1.19
 
-RUN mkdir -p $GOPATH/src/github.com/ncostamagna/axul_contact
-WORKDIR $GOPATH/src/github.com/ncostamagna/axul_contact
+WORKDIR $GOPATH/bin
 
-COPY . .
-RUN ls
+COPY main .
 
-RUN go install -v ./...
-EXPOSE 8080
+EXPOSE 8081
 
-CMD ["axul_contact"]
+CMD ["main"]
