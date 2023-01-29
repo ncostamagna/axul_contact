@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-kit/kit v0.12.0
 	github.com/joho/godotenv v1.4.0
-	github.com/ncostamagna/axul_auth v1.0.0
+	github.com/ncostamagna/axul_auth v1.1.0
 	github.com/ncostamagna/axul_domain v0.0.2
 	github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de
 	github.com/ncostamagna/streetflow v1.0.1
@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/getsentry/sentry-go v0.11.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
@@ -28,6 +27,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
