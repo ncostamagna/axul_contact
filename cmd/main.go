@@ -54,11 +54,10 @@ func main() {
 	}()*/
 
 	h := handler.NewHTTPServer(ctx, contact.MakeEndpoints(service))
-	port := os.Getenv("APP_PORT")
-	address := fmt.Sprintf("127.0.0.1:%s", port)
+	url := os.Getenv("APP_URL")
 	srv := &http.Server{
 		Handler:      accessControl(h),
-		Addr:         address,
+		Addr:         url,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  4 * time.Second,
 	}
@@ -67,7 +66,7 @@ func main() {
 	errSrv := make(chan error)
 
 	go func() {
-		fmt.Println("listening on port", address)
+		fmt.Println("listening on", url)
 		errSrv <- srv.ListenAndServe()
 
 	}()
