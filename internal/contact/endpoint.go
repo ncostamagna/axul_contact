@@ -100,10 +100,11 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 			return nil, response.Unauthorized(err.Error())
 		}
 
+		fd := time.Now().UTC()
 		f := Filter{
 			Name:      req.Name,
 			Month:     req.Month,
-			firstDate: time.Now().UTC(),
+			firstDate: time.Date(fd.Year(), fd.Month(), fd.Day(),0, 0, 0, 0, time.UTC),
 		}
 
 		if req.Birthday != "" {
