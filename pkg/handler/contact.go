@@ -107,9 +107,10 @@ func decodeGetContact(ctx context.Context, r *http.Request) (interface{}, error)
 func decodeGetAll(_ context.Context, r *http.Request) (interface{}, error) {
 
 	v := r.URL.Query()
-	fmt.Println(v)
+
 	d, _ := strconv.ParseInt(v.Get("days"), 0, 64)
-	fmt.Println("days: ", d)
+	limit, _ := strconv.Atoi(v.Get("limit"))
+	page, _ := strconv.Atoi(v.Get("page"))
 
 	m, _ := strconv.ParseInt(v.Get("month"), 0, 64)
 	req := contact.GetAllReq{
@@ -117,6 +118,8 @@ func decodeGetAll(_ context.Context, r *http.Request) (interface{}, error) {
 		Days:     d,
 		Month:    int16(m),
 		Name:     v.Get("name"),
+		Limit: limit,
+		Page: page,
 	}
 
 	req.Auth.ID = v.Get("userid")
