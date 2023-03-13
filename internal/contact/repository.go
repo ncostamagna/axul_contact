@@ -18,6 +18,7 @@ type Repository interface {
 	Update(ctx context.Context, contact *domain.Contact, contactValues domain.Contact) error
 	GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error)
 	Get(ctx context.Context, id string) (*domain.Contact, error)
+	Delete(ctx context.Context, id string) error
 	Count(ctx context.Context, filters Filter) (int, error)
 }
 
@@ -95,8 +96,17 @@ func (repo *repo) Update(ctx context.Context, contact *domain.Contact, contactVa
 	return nil
 }
 
-func (repo *repo) Delete(ctx context.Context, contact *[]domain.Contact) error {
+func (r *repo) Delete(ctx context.Context, id string) error {
+	course := domain.Contact{ID: id}
+	result := r.db.WithContext(ctx).Delete(&course)
 
+	if result.Error != nil {
+		return r.log.CatchError(result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrNotFound{id}
+	}
 	return nil
 }
 
@@ -119,8 +129,12 @@ func applyFilters(tx *gorm.DB, f Filter) *gorm.DB {
 		tx = tx.Where("CONCAT('"+strconv.Itoa(f.firstDate.Year())+"',DATE_FORMAT(birthday,'%m%d')) between DATE_FORMAT(?,'%Y%m%d') and DATE_FORMAT(?,'%Y%m%d')", f.firstDate, second)
 	}
 
-	if f.Name != "" {
-		tx = tx.Where("UPPER(CONCAT(firstname, ' ', lastname, ' ', nickname)) like CONCAT('%',UPPER(?),'%')", f.Name)
+	if f.Firstname != "" {
+		tx = tx.Where("UPPER(firstname) like CONCAT('%',UPPER(?),'%')", f.Firstname)
+	}
+
+	if f.Lastname != "" {
+		tx = tx.Where("UPPER(lastname) like CONCAT('%',UPPER(?),'%')", f.Lastname)
 	}
 
 	if f.Month != 0 {

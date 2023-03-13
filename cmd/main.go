@@ -53,7 +53,7 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()*/
 
-	h := handler.NewHTTPServer(ctx, contact.MakeEndpoints(service))
+	h := handler.NewHTTPServer(ctx, auth, contact.MakeEndpoints(service))
 	url := os.Getenv("APP_URL")
 	srv := &http.Server{
 		Handler:      accessControl(h),

@@ -2,10 +2,10 @@ package contact
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/digitalhouse-tech/go-lib-kit/meta"
 	"github.com/digitalhouse-tech/go-lib-kit/response"
-	"github.com/go-kit/kit/endpoint"
 	"strconv"
 	"time"
 )
@@ -33,13 +33,14 @@ type (
 	}
 
 	GetAllReq struct {
-		Auth     Authentication
-		Days     int64
-		Birthday string
-		Name     string
-		Month    int16
-		Limit    int
-		Page     int
+		Auth      Authentication
+		Days      int64
+		Birthday  string
+		Firstname string
+		Lastname  string
+		Month     int16
+		Limit     int
+		Page      int
 	}
 
 	Authentication struct {
@@ -47,12 +48,19 @@ type (
 		Token string
 	}
 
+	DeleteReq struct {
+		ID string
+	}
+
+	Controller func(ctx context.Context, request interface{}) (interface{}, error)
+
 	Endpoints struct {
-		Create endpoint.Endpoint
-		Update endpoint.Endpoint
-		Get    endpoint.Endpoint
-		GetAll endpoint.Endpoint
-		Alert  endpoint.Endpoint
+		Create Controller
+		Update Controller
+		Get    Controller
+		GetAll Controller
+		Delete Controller
+		Alert  Controller
 	}
 )
 
@@ -63,27 +71,37 @@ func MakeEndpoints(s Service) Endpoints {
 		Update: makeUpdateEndpoint(s),
 		Get:    makeGetEndpoint(s),
 		GetAll: makeGetAllEndpoint(s),
+		Delete: makeDeleteEndpoint(s),
 		Alert:  makeAlertEndpoint(s),
 	}
 }
 
-func makeCreateEndpoint(s Service) endpoint.Endpoint {
+func makeCreateEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(StoreReq)
-		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, response.Unauthorized(err.Error())
+
+		if req.Firstname == "" {
+			return nil, response.BadRequest("first name is required")
+		}
+
+		if req.Lastname == "" {
+			return nil, response.BadRequest("last name is required")
+		}
+
+		if req.Nickname == "" {
+			return nil, response.BadRequest("nick name is required")
 		}
 
 		birthday, err := time.Parse(layoutISO, fmt.Sprintf("%s 17:00:00", req.Birthday))
 
 		if err != nil {
-			return nil, err
+			return nil, response.BadRequest(err.Error())
 		}
 
 		c, err := s.Create(ctx, req.Firstname, req.Lastname, req.Nickname, req.Gender, req.Phone, birthday)
 
 		if err != nil {
-			return nil, err
+			return nil, response.InternalServerError(err.Error())
 		}
 
 		return response.Created("success", c, nil, nil), nil
@@ -91,20 +109,21 @@ func makeCreateEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeGetAllEndpoint(s Service) endpoint.Endpoint {
+func makeGetAllEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 
 		req := request.(GetAllReq)
-		fmt.Println(req.Auth.ID, req.Auth.Token)
-		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, response.Unauthorized(err.Error())
-		}
+
+		//if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
+		//	return nil, response.Unauthorized(err.Error())
+		//}
 
 		fd := time.Now().UTC()
 		f := Filter{
-			Name:      req.Name,
+			Firstname: req.Firstname,
+			Lastname:  req.Lastname,
 			Month:     req.Month,
-			firstDate: time.Date(fd.Year(), fd.Month(), fd.Day(),0, 0, 0, 0, time.UTC),
+			firstDate: time.Date(fd.Year(), fd.Month(), fd.Day(), 0, 0, 0, 0, time.UTC),
 		}
 
 		if req.Birthday != "" {
@@ -137,18 +156,15 @@ func makeGetAllEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateEndpoint(s Service) endpoint.Endpoint {
+func makeUpdateEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		return nil, nil
 	}
 }
 
-func makeGetEndpoint(s Service) endpoint.Endpoint {
+func makeGetEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetReq)
-		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, response.Unauthorized(err.Error())
-		}
 
 		contact, err := s.Get(ctx, req.ID)
 		if err != nil {
@@ -159,12 +175,26 @@ func makeGetEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeAlertEndpoint(s Service) endpoint.Endpoint {
+func makeDeleteEndpoint(s Service) Controller {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+
+		req := request.(DeleteReq)
+
+		if err := s.Delete(ctx, req.ID); err != nil {
+			if errors.As(err, &ErrNotFound{}) {
+				return nil, response.NotFound(err.Error())
+			}
+
+			return nil, response.InternalServerError(err.Error())
+		}
+
+		return response.OK("success", nil, nil, nil), nil
+	}
+}
+
+func makeAlertEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetAllReq)
-		if err := s.authorization(ctx, req.Auth.ID, req.Auth.Token); err != nil {
-			return nil, response.Unauthorized(err.Error())
-		}
 
 		fmt.Println(req)
 		cs, err := s.Alert(ctx, req.Birthday)

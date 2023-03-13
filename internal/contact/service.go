@@ -17,12 +17,12 @@ import (
 type Service interface {
 	Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*domain.Contact, error)
 	Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error
-	Delete(ctx context.Context, id string) error
 	Get(ctx context.Context, id string) (*domain.Contact, error)
 	GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error)
+	Delete(ctx context.Context, id string) error
 	Count(ctx context.Context, filters Filter) (int, error)
 	Alert(ctx context.Context, birthday string) ([]domain.Contact, error)
-	authorization(ctx context.Context, id, token string) error
+	//authorization(ctx context.Context, id, token string) error
 }
 
 type service struct {
@@ -36,7 +36,8 @@ type service struct {
 type Filter struct {
 	RangeDays *int64
 	Birthday  *int
-	Name      string
+	Firstname string
+	Lastname  string
 	Month     int16
 	firstDate time.Time
 }
@@ -76,6 +77,11 @@ func (s service) Update(ctx context.Context, id, firstName, lastName, nickName, 
 }
 
 func (s service) Delete(ctx context.Context, id string) error {
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -143,10 +149,11 @@ func message(days int, nickname, phone string) string {
 	return ""
 }
 
+/*
 func (s *service) authorization(ctx context.Context, id, token string) error {
 	fmt.Println(id, token)
 	return s.auth.Access(id, token)
-}
+}*/
 
 func (s service) Count(ctx context.Context, filters Filter) (int, error) {
 	return s.repo.Count(ctx, filters)
