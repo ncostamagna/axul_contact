@@ -15,7 +15,7 @@ import (
 // Repository is a Repository handler interface
 type Repository interface {
 	Create(ctx context.Context, contact *domain.Contact) error
-	Update(ctx context.Context, contact *domain.Contact, contactValues domain.Contact) error
+	Update(ctx context.Context, id string, firstName, lastName, nickName, gender, phone *string, birthday *time.Time) error
 	GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error)
 	Get(ctx context.Context, id string) (*domain.Contact, error)
 	Delete(ctx context.Context, id string) error
@@ -91,7 +91,42 @@ func (repo *repo) Get(_ context.Context, id string) (*domain.Contact, error) {
 	return &contact, nil
 }
 
-func (repo *repo) Update(ctx context.Context, contact *domain.Contact, contactValues domain.Contact) error {
+func (repo *repo) Update(ctx context.Context, id string, firstName, lastName, nickName, gender, phone *string, birthday *time.Time) error {
+
+	values := make(map[string]interface{})
+
+	if firstName != nil {
+		values["firstname"] = *firstName
+	}
+
+	if lastName != nil {
+		values["lastname"] = *lastName
+	}
+
+	if nickName != nil {
+		values["nickname"] = *nickName
+	}
+
+	if gender != nil {
+		values["gender"] = *gender
+	}
+
+	if phone != nil {
+		values["phone"] = *phone
+	}
+
+	if birthday != nil {
+		values["birthday"] = *birthday
+	}
+
+	result := repo.db.WithContext(ctx).Model(&domain.Contact{}).Where("id = ?", id).Updates(values)
+	if result.Error != nil {
+		return repo.log.CatchError(result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return repo.log.CatchError(ErrNotFound{fmt.Sprint(id)})
+	}
 
 	return nil
 }

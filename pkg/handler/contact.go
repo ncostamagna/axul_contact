@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/digitalhouse-tech/go-lib-kit/response"
 	"github.com/gin-gonic/gin"
 	"github.com/go-kit/kit/endpoint"
@@ -44,9 +45,9 @@ func NewHTTPServer(ctx context.Context, auth authentication.Auth, endpoints cont
 		opts...,
 	)))
 
-	r.PUT("/contacts/:id", gin.WrapH(httptransport.NewServer(
+	r.PATCH("/contacts/:id", gin.WrapH(httptransport.NewServer(
 		endpoint.Endpoint(endpoints.Update),
-		nil,
+		decodeUpdateCourse,
 		encodeResponse,
 		opts...,
 	)))
@@ -160,6 +161,25 @@ func decodeDeleteContact(ctx context.Context, r *http.Request) (interface{}, err
 	if err := authContact(ctx, qs.Get("userid"), r.Header.Get("Authorization")); err != nil {
 		return nil, response.Unauthorized(err.Error())
 	}
+	return req, nil
+}
+
+func decodeUpdateCourse(ctx context.Context, r *http.Request) (interface{}, error) {
+
+	var req contact.UpdateReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, response.BadRequest(fmt.Sprintf("invalid request format: '%v'", err.Error()))
+	}
+
+	params := ctx.Value("params").(gin.Params)
+	req.ID = params.ByName("id")
+
+	qs := r.URL.Query()
+	if err := authContact(ctx, qs.Get("userid"), r.Header.Get("Authorization")); err != nil {
+		return nil, response.Unauthorized(err.Error())
+	}
+
 	return req, nil
 }
 

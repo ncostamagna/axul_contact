@@ -18,7 +18,6 @@ const (
 type (
 	StoreReq struct {
 		Auth      Authentication
-		ID        uint   `json:"id"`
 		Firstname string `json:"firstname"`
 		Lastname  string `json:"lastname"`
 		Nickname  string `json:"nickname"`
@@ -46,6 +45,16 @@ type (
 	Authentication struct {
 		ID    string
 		Token string
+	}
+
+	UpdateReq struct {
+		ID        string  `json:"id"`
+		Firstname *string `json:"firstname"`
+		Lastname  *string `json:"lastname"`
+		Nickname  *string `json:"nickname"`
+		Gender    *string `json:"gender"`
+		Phone     *string `json:"phone"`
+		Birthday  *string `json:"birthday"`
 	}
 
 	DeleteReq struct {
@@ -158,7 +167,38 @@ func makeGetAllEndpoint(s Service) Controller {
 
 func makeUpdateEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		return nil, nil
+
+		req := request.(UpdateReq)
+		var birthday *time.Time
+
+		if req.Firstname != nil && *req.Firstname == "" {
+			return nil, response.BadRequest("first name is required")
+		}
+
+		if req.Lastname != nil && *req.Lastname == "" {
+			return nil, response.BadRequest("last name is required")
+		}
+
+		if req.Nickname != nil && *req.Nickname == "" {
+			return nil, response.BadRequest("nick name is required")
+		}
+
+		if req.Birthday != nil {
+			b, err := time.Parse(layoutISO, fmt.Sprintf("%s 17:00:00", *req.Birthday))
+			if err != nil {
+				return nil, response.BadRequest(err.Error())
+			}
+			birthday = &b
+		}
+
+		if err := s.Update(ctx, req.ID, req.Firstname, req.Lastname, req.Nickname, req.Gender, req.Phone, birthday); err != nil {
+			if errors.As(err, &ErrNotFound{}) {
+				return nil, response.NotFound(err.Error())
+			}
+			return nil, response.InternalServerError(err.Error())
+		}
+
+		return response.OK("success", nil, nil, nil), nil
 	}
 }
 

@@ -16,7 +16,7 @@ import (
 // Service interface
 type Service interface {
 	Create(ctx context.Context, firstName, lastName, nickName, gender, phone string, birthday time.Time) (*domain.Contact, error)
-	Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error
+	Update(ctx context.Context, id string, firstName, lastName, nickName, gender, phone *string, birthday *time.Time) error
 	Get(ctx context.Context, id string) (*domain.Contact, error)
 	GetAll(ctx context.Context, f Filter, offset, limit int) ([]domain.Contact, error)
 	Delete(ctx context.Context, id string) error
@@ -72,8 +72,8 @@ func (s service) Create(ctx context.Context, firstName, lastName, nickName, gend
 	return &c, nil
 }
 
-func (s service) Update(ctx context.Context, id, firstName, lastName, nickName, gender, phone string, birthday time.Time) error {
-	return nil
+func (s service) Update(ctx context.Context, id string, firstName, lastName, nickName, gender, phone *string, birthday *time.Time) error {
+	return s.repo.Update(ctx, id, firstName, lastName, nickName, gender, phone, birthday)
 }
 
 func (s service) Delete(ctx context.Context, id string) error {
