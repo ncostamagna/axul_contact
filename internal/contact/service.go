@@ -3,14 +3,14 @@ package contact
 import (
 	"context"
 	"fmt"
+	"github.com/digitalhouse-dev/dh-kit/logger"
+	authentication "github.com/ncostamagna/axul_auth/auth"
 	"github.com/ncostamagna/axul_domain/domain"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"github.com/starry-axul/notifit-go-sdk/notify"
 	"strconv"
 	"time"
-
-	"github.com/digitalhouse-dev/dh-kit/logger"
-	authentication "github.com/ncostamagna/axul_auth/auth"
 )
 
 // Service interface
@@ -29,6 +29,7 @@ type service struct {
 	repo      Repository
 	slackTran *slack.SlackBuilder
 	telegTran *telegram.Transport
+	notif     notify.Transport
 	auth      authentication.Auth
 	logger    logger.Logger
 }
@@ -43,12 +44,13 @@ type Filter struct {
 }
 
 // NewService is a service handler
-func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, auth authentication.Auth, logger logger.Logger) Service {
+func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, notif notify.Transport, auth authentication.Auth, logger logger.Logger) Service {
 	return &service{
 		repo:      repo,
 		slackTran: slackTran,
 		telegTran: telegTran,
 		auth:      auth,
+		notif:     notif,
 		logger:    logger,
 	}
 }
@@ -125,10 +127,9 @@ func (s service) Alert(ctx context.Context, birthday string) ([]domain.Contact, 
 			res := s.slackTran.SendMessage("<@U01CDEPA3T9> " + message(days, c.Nickname, c.Phone))
 			fmt.Println(res)
 		case 0:
-			//telegra alert
-			fmt.Println("Telegram Alert")
-			err := telegram.NewTelegramBuilder(*s.telegTran).Message(message(days, c.Nickname, c.Phone)).Send()
-			fmt.Println(err)
+			if err := s.notif.Push(ctx, fmt.Sprintf("Cumpleaños de %s,%s", c.Firstname, c.Lastname), fmt.Sprintf("Cumpleaños de %s,%s. Acuerdate de saludarlo en su dia", c.Firstname, c.Lastname), "https://axul-front.vercel.app/home"); err != nil {
+				return nil, err
+			}
 		}
 	}
 

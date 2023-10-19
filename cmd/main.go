@@ -11,6 +11,7 @@ import (
 	"github.com/ncostamagna/axul_contact/pkg/handler"
 	"github.com/ncostamagna/streetflow/slack"
 	"github.com/ncostamagna/streetflow/telegram"
+	"github.com/starry-axul/notifit-go-sdk/notify"
 	"net/http"
 	"os"
 	"time"
@@ -43,8 +44,9 @@ func main() {
 		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
 		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
 		//userTran := client.NewClient(os.Getenv("USER_GRPC_URL"), "", client.GRPC)
+		notifTran := notify.NewHttpClient("http://ec2-54-226-191-87.compute-1.amazonaws.com:8100", "")
 		repository := contact.NewRepo(db, log)
-		service = contact.NewService(repository, slackTran, &telegTran, auth, log)
+		service = contact.NewService(repository, slackTran, &telegTran, notifTran, auth, log)
 	}
 
 	/*go func() {

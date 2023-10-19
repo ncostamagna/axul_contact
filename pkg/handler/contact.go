@@ -61,7 +61,7 @@ func NewHTTPServer(ctx context.Context, auth authentication.Auth, endpoints cont
 
 	r.POST("/contacts/alert", gin.WrapH(httptransport.NewServer(
 		endpoint.Endpoint(endpoints.Alert),
-		decodeGetAll,
+		decodeAlert,
 		encodeResponse,
 		opts...,
 	)))
@@ -178,6 +178,18 @@ func decodeUpdateCourse(ctx context.Context, r *http.Request) (interface{}, erro
 	qs := r.URL.Query()
 	if err := authContact(ctx, qs.Get("userid"), r.Header.Get("Authorization")); err != nil {
 		return nil, response.Unauthorized(err.Error())
+	}
+
+	return req, nil
+}
+
+func decodeAlert(ctx context.Context, r *http.Request) (interface{}, error) {
+
+	fmt.Println("Entra")
+	v := r.URL.Query()
+
+	req := contact.AlertReq{
+		Birthday: v.Get("birthday"),
 	}
 
 	return req, nil

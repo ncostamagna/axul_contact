@@ -312,6 +312,8 @@ github.com/ncostamagna/axul_domain v0.0.2 h1:RWMfL+s+cxACcEmtT12Ccs1iuyGO3VmvMOo
 github.com/ncostamagna/axul_domain v0.0.2/go.mod h1:U500vm7pNQN6z95G5zvF+ecdCEWUuEWg1c2xOVKvLzk=
 github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de h1:MtxE4Hxans7KUDPbMRSk4FKkQ/cCFNKvFJ+nbN5M90o=
 github.com/ncostamagna/axul_user v0.0.0-20210915044039-8693883ca4de/go.mod h1:Vil7E9xLmNMRV+vYeOjeBQnKDRmXC1Te9Vlb8ceDFzs=
+github.com/ncostamagna/go_http_client v0.0.1 h1:Nd2OGLo7KNvTRjA7OjMRdJCsIq1yBHgP9VSnwPhQbnY=
+github.com/ncostamagna/go_http_client v0.0.1/go.mod h1:6gp1XfbSK4l6LBfJYmRTTDFFMGLae59hdxzrNh3+/jQ=
 github.com/ncostamagna/streetflow v1.0.1 h1:aEpzVv5L5DgjKsFDwkG2o1a/XsDbX5nPSlMIi1iKQP8=
 github.com/ncostamagna/streetflow v1.0.1/go.mod h1:O1646r52K6W0GyIkAPdnXz6MRRFcrZPVpxZ2HmPxNJ8=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
@@ -383,6 +385,8 @@ github.com/spf13/cobra v0.0.5/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tL
 github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb68N+wFjFa4jdeBTo=
 github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DMA2s=
+github.com/starry-axul/notifit-go-sdk v0.0.1 h1:jll8gOYOFrKfbww+FN/IR2GLySKtiDK0cvbnmjg0F3k=
+github.com/starry-axul/notifit-go-sdk v0.0.1/go.mod h1:y69SjobcMDoSa04QIA73DyBK7czTNZoXmCqwWJXsm1I=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v1.0.0/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20200128134331-0f66f006fb2e/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=

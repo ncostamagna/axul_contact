@@ -42,6 +42,10 @@ type (
 		Page      int
 	}
 
+	AlertReq struct {
+		Birthday string
+	}
+
 	Authentication struct {
 		ID    string
 		Token string
@@ -234,9 +238,8 @@ func makeDeleteEndpoint(s Service) Controller {
 
 func makeAlertEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetAllReq)
+		req := request.(AlertReq)
 
-		fmt.Println(req)
 		cs, err := s.Alert(ctx, req.Birthday)
 		if err != nil {
 			return nil, err
