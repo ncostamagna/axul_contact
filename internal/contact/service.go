@@ -6,11 +6,10 @@ import (
 	"github.com/digitalhouse-dev/dh-kit/logger"
 	authentication "github.com/ncostamagna/axul_auth/auth"
 	"github.com/ncostamagna/axul_domain/domain"
-	"github.com/ncostamagna/streetflow/slack"
-	"github.com/ncostamagna/streetflow/telegram"
 	"github.com/starry-axul/notifit-go-sdk/notify"
 	"strconv"
 	"time"
+	"os"
 )
 
 // Service interface
@@ -27,8 +26,6 @@ type Service interface {
 
 type service struct {
 	repo      Repository
-	slackTran *slack.SlackBuilder
-	telegTran *telegram.Transport
 	notif     notify.Transport
 	auth      authentication.Auth
 	logger    logger.Logger
@@ -44,11 +41,9 @@ type Filter struct {
 }
 
 // NewService is a service handler
-func NewService(repo Repository, slackTran *slack.SlackBuilder, telegTran *telegram.Transport, notif notify.Transport, auth authentication.Auth, logger logger.Logger) Service {
+func NewService(repo Repository, notif notify.Transport, auth authentication.Auth, logger logger.Logger) Service {
 	return &service{
 		repo:      repo,
-		slackTran: slackTran,
-		telegTran: telegTran,
 		auth:      auth,
 		notif:     notif,
 		logger:    logger,
@@ -119,15 +114,9 @@ func (s service) Alert(ctx context.Context, birthday string) ([]domain.Contact, 
 	}
 
 	for _, c := range cs {
-		fmt.Println(c)
-		switch days {
-		case 1, 3:
-			//slack alert
-			fmt.Println("Slack Alert")
-			res := s.slackTran.SendMessage("<@U01CDEPA3T9> " + message(days, c.Nickname, c.Phone))
-			fmt.Println(res)
-		case 0:
-			if err := s.notif.Push(ctx, fmt.Sprintf("Cumpleaños de %s,%s", c.Firstname, c.Lastname), fmt.Sprintf("Cumpleaños de %s,%s. Acuerdate de saludarlo en su dia", c.Firstname, c.Lastname), "https://axul-front.vercel.app/home"); err != nil {
+
+		if days == 0 {
+			if err := s.notif.Push(ctx, fmt.Sprintf(os.Getenv("BIRTHDAY_TITLE"), c.Firstname, c.Lastname), fmt.Sprintf(os.Getenv("BIRTHDAY_TEXT"), c.Firstname, c.Lastname), os.Getenv("BIRTHDAY_PAGE")); err != nil {
 				return nil, err
 			}
 		}
@@ -136,6 +125,7 @@ func (s service) Alert(ctx context.Context, birthday string) ([]domain.Contact, 
 	return cs, nil
 }
 
+/* deprecated
 func message(days int, nickname, phone string) string {
 
 	switch days {
@@ -150,7 +140,6 @@ func message(days int, nickname, phone string) string {
 	return ""
 }
 
-/*
 func (s *service) authorization(ctx context.Context, id, token string) error {
 	fmt.Println(id, token)
 	return s.auth.Access(id, token)

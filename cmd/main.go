@@ -9,8 +9,6 @@ import (
 	"github.com/ncostamagna/axul_contact/internal/contact"
 	"github.com/ncostamagna/axul_contact/pkg/bootstrap"
 	"github.com/ncostamagna/axul_contact/pkg/handler"
-	"github.com/ncostamagna/streetflow/slack"
-	"github.com/ncostamagna/streetflow/telegram"
 	"github.com/starry-axul/notifit-go-sdk/notify"
 	"net/http"
 	"os"
@@ -40,20 +38,11 @@ func main() {
 
 	var service contact.Service
 	{
-		//tempTran := contact.NewClient(os.Getenv("USER_GRPC_URL"), "", contact.GRPC)
-		slackTran, _ := slack.NewSlackBuilder(os.Getenv("SLACK_CHANNEL"), os.Getenv("SLACK_TOKEN")).Build()
-		telegTran := telegram.NewClient("1536608370:AAErsMmopurv4JhVp1ondOuld8GRUJxohOY", telegram.HTTP)
-		//userTran := client.NewClient(os.Getenv("USER_GRPC_URL"), "", client.GRPC)
-		notifTran := notify.NewHttpClient("http://ec2-54-226-191-87.compute-1.amazonaws.com:8100", "")
+		notifTran := notify.NewHttpClient(os.Getenv("PUSH_URL"), "")
 		repository := contact.NewRepo(db, log)
-		service = contact.NewService(repository, slackTran, &telegTran, notifTran, auth, log)
+		service = contact.NewService(repository, notifTran, auth, log)
 	}
 
-	/*go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errs <- fmt.Errorf("%s", <-c)
-	}()*/
 
 	h := handler.NewHTTPServer(ctx, auth, contact.MakeEndpoints(service))
 	url := os.Getenv("APP_URL")
@@ -64,7 +53,6 @@ func main() {
 		ReadTimeout:  4 * time.Second,
 	}
 
-	//http.Handle("/", cors.AllowAll().Handler(accessControl(mux)))
 	errSrv := make(chan error)
 
 	go func() {

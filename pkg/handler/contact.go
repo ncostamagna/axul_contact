@@ -185,7 +185,6 @@ func decodeUpdateCourse(ctx context.Context, r *http.Request) (interface{}, erro
 
 func decodeAlert(ctx context.Context, r *http.Request) (interface{}, error) {
 
-	fmt.Println("Entra")
 	v := r.URL.Query()
 
 	req := contact.AlertReq{
